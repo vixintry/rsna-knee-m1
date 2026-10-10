@@ -27,3 +27,20 @@ def get_label_summary(df: pd.DataFrame) -> pd.DataFrame:
     )
 
     return summary
+
+
+def validate_label_values(df: pd.DataFrame) -> None:
+    """Allow only binary labels (0 or 1) and missing values."""
+    validate_label_columns(df)
+
+    invalid = {}
+
+    for target in TARGETS:
+        values = df[target].dropna()
+        bad_values = values[~values.isin([0, 1])].unique()
+
+        if len(bad_values) > 0:
+            invalid[target] = bad_values.tolist()
+
+    if invalid:
+        raise ValueError(f"Invalid label values: {invalid}")
