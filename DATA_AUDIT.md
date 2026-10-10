@@ -55,7 +55,7 @@ These counts make reliable model selection and per-target validation difficult, 
 ### Test-time availability warning
 
 - In the audited notebook, `test.csv` had shape `(3, 1)` and only one column: `StudyInstanceUID`. The three displayed rows were a sample, not the full test set.
-- Therefore reports are **not supplied as a column in `test.csv`**. Do not assume test reports are available for direct prediction. Check official competition rules and the submission/data interface before deciding how reports can be used.
+- The official [competition data page](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/data) confirms that the three-row `test.csv` is only an example and will be replaced with the real test set (about 1,300 studies); the `Report` field will **not** be provided at testing time. The final model must predict from available test-time inputs, chiefly MRI DICOM series and series metadata.
 - Training reports may still be useful for understanding the data or for permitted training-time weak supervision, but that does not by itself make a report-only predictor usable at test time.
 
 ### Important report/label disagreements
@@ -68,7 +68,7 @@ These examples do not establish whether the cause is a different target definiti
 
 ### Proposed next experiment
 
-1. Verify the official metric, competition rules, and permitted data use.
+1. Use the verified macro-ROC-AUC metric and check any remaining rule questions before using external data or external tools.
 2. Audit report languages and inspect a small, varied sample systematically.
 3. Prototype rule-based extraction for one target (ACL is a reasonable starting point), handling negation, uncertainty, historical mentions, and non-English text.
 4. Compare extracted labels with the 58 labelled studies and manually inspect disagreements. With only 58 labelled studies, precision estimates will be uncertain.
@@ -85,7 +85,7 @@ These examples do not establish whether the cause is a different target definiti
 
 ## Not yet established
 
-- The official competition metric and current rules have not been independently re-verified in this note.
+- The official competition page has now been checked (2026-10-10): the main metric is macro-averaged ROC-AUC over the 12 targets; submission is through a Kaggle Notebook with a 9-hour CPU/GPU runtime limit and internet disabled. The page says freely and publicly available external data is allowed, including pretrained models. However, external-data eligibility can depend on access and licensing conditions, so do not assume a gated dataset is eligible without checking the current rules and host clarifications. See [official overview/evaluation](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/overview/evaluation) and [official data page](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/data).
 - The report-language distribution across all studies has not been measured.
 - No model has been trained, no validation score has been measured, and no submission has been produced.
 - The attached third-party JPEG dataset is excluded from experiments until its licence and competition-rule compatibility are checked.
