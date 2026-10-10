@@ -9,7 +9,7 @@ This note records findings from the initial Kaggle notebook audit. These are obs
 - `train.csv` has 4,407 studies and 14 columns: `StudyInstanceUID`, `Report`, and 12 target columns.
 - Only 58/4,407 studies (about 1.32%) have known values for the target labels.
 - Those 58 studies have all 12 targets populated, giving 696 known target values.
-- The other 4,349 studies have all 12 targets missing.
+- The other 4,349 studies have all 12 target labels missing.
 - **Missing targets must remain unknown, not be converted to negative labels.**
 - Among the 58 labelled studies there are 240 positive and 456 negative target values. These are not 696 independent studies; all targets for a given study are correlated.
 
@@ -42,16 +42,38 @@ These counts make reliable model selection and per-target validation difficult, 
 - The longest series are not automatically corrupt. One inspected 320-slice series is described as a sagittal 3D proton-density acquisition, with approximately 0.8 mm slice thickness and 0.4 mm spacing. Treat these as cases to investigate, not outliers to discard by default.
 - In one inspected 30-slice series, sorting by physical slice position agreed with InstanceNumber. This has only been verified for that series. DICOM filenames are UID-like and should not be assumed to encode slice order; validate geometric sorting across more series before using it in a loader.
 
-## Reports and weak supervision: next experiment
+## Reports and weak supervision
 
-Reports could potentially provide useful weak labels for studies without target labels, but this has not been tested. Report-derived labels must not be treated as ground truth without validation.
+### Observed report availability
 
-1. Inspect `test.csv` columns first; establish which inputs are actually available for test-time prediction.
-2. Measure report presence, length, and language distribution in labelled and unlabelled training studies.
-3. Read a small, deliberately varied sample of reports from both groups.
-4. Prototype explicit rule-based extraction for one target (ACL is a reasonable starting point), including negation, uncertainty, and non-English text.
-5. Compare extracted labels with the 58 ground-truth-labelled studies and manually inspect disagreements. With only 58 labelled studies, precision estimates will be uncertain.
-6. Only expand the method if the prototype shows credible precision and competition rules permit using reports. Keep unknown or ambiguous cases unlabeled rather than forcing a 0/1 decision.
+- All 4,407 training studies have a non-empty `Report` field in the audited CSV.
+- Labelled studies: 58/58 non-empty reports; median length 1,205 characters; 25th/75th percentiles 817.5/1,777 characters.
+- Unlabelled studies: 4,349/4,349 non-empty reports; median length 973 characters; 25th/75th percentiles 586/1,455 characters.
+- Reports are multilingual. The inspected sample included English, Spanish, Turkish, and Greek. The sample is illustrative, not a complete language-distribution audit.
+- The inspected reports contain clinically descriptive findings and impressions, so report-derived weak labels may be worth testing.
+
+### Test-time availability warning
+
+- In the audited notebook, `test.csv` had shape `(3, 1)` and only one column: `StudyInstanceUID`. The three displayed rows were a sample, not the full test set.
+- Therefore reports are **not supplied as a column in `test.csv`**. Do not assume test reports are available for direct prediction. Check official competition rules and the submission/data interface before deciding how reports can be used.
+- Training reports may still be useful for understanding the data or for permitted training-time weak supervision, but that does not by itself make a report-only predictor usable at test time.
+
+### Important report/label disagreements
+
+The initial sample revealed possible mismatches between report wording and supplied targets:
+- One report describes a lateral meniscus tear while the supplied `Lateral Meniscus` target is 0.
+- One report describes a partial ACL tear while the supplied `ACL` target is 0.
+
+These examples do not establish whether the cause is a different target definition, report/label disagreement, annotation error, or a misunderstanding of the report. They do establish that naive keyword matching should not be trusted without checking target definitions and evaluating disagreements. Do not overwrite supplied labels with report-derived labels.
+
+### Proposed next experiment
+
+1. Verify the official metric, competition rules, and permitted data use.
+2. Audit report languages and inspect a small, varied sample systematically.
+3. Prototype rule-based extraction for one target (ACL is a reasonable starting point), handling negation, uncertainty, historical mentions, and non-English text.
+4. Compare extracted labels with the 58 labelled studies and manually inspect disagreements. With only 58 labelled studies, precision estimates will be uncertain.
+5. Keep ambiguous cases unknown instead of forcing 0/1 labels. Expand only if the prototype shows credible precision and the method is permitted.
+6. Do not build a report-only test predictor unless the needed test-time information is legitimately available.
 
 ## Modelling implications
 
@@ -64,6 +86,6 @@ Reports could potentially provide useful weak labels for studies without target 
 ## Not yet established
 
 - The official competition metric and current rules have not been independently re-verified in this note.
-- It has not yet been established whether test reports are available or usable for prediction.
+- The report-language distribution across all studies has not been measured.
 - No model has been trained, no validation score has been measured, and no submission has been produced.
 - The attached third-party JPEG dataset is excluded from experiments until its licence and competition-rule compatibility are checked.
