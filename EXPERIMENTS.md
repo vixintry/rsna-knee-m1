@@ -113,3 +113,17 @@ Copy for each meaningful experiment:
 - **Conclusion:**
 - **Decision:** keep / reject / investigate
 - **Code commit:**
+
+### EXP-004 — DINOv2 Base feature extraction (setup in progress)
+- **Date:** 2026-10-10
+- **Status:** setup complete; inference smoke test pending
+- **Hypothesis:** a pretrained visual encoder will provide more useful image features than the scratch CNNs given only 58 fully labelled studies.
+- **Change from baseline:** use the public Meta DINOv2 Base checkpoint as a frozen feature encoder before training a small 12-label classifier.
+- **Model source / licence:** Kaggle Models, `metaresearch/dinov2`, PyTorch Base, Version 1; Apache 2.0 as shown on the model page.
+- **Checkpoint location in Kaggle:** `/kaggle/input/models/metaresearch/dinov2/pytorch/base/1`
+- **Files observed:** `config.json`, `preprocessor_config.json`, `README.md`, `pytorch_model.bin`, `.gitattributes`; weights reported as 346.39 MB on the model page.
+- **Environment:** Kaggle notebook; Tesla T4 was available in previous experiments, but GPU availability for this run has not yet been confirmed.
+- **Validation split:** intended to reuse SPLIT-42-ACL-43-15 (43 train / 15 validation studies).
+- **Results:** none yet. Checkpoint attachment and file discovery are confirmed; successful model loading, feature extraction, training, and validation are not yet recorded.
+- **Next steps:** load with `local_files_only=True`; test one decoded knee slice; verify preprocessing and feature shape; then cache fixed-slice embeddings and train/evaluate the small multi-label classifier.
+- **Guardrail:** do not record an AUC or claim improvement until the run actually completes; compare on the same split and report all 12 target AUCs.
