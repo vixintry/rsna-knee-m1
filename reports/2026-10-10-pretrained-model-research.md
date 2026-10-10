@@ -27,3 +27,8 @@ The competition also has public reference notebooks using DINOv2 and reporting s
 - Do not use any external weights or dataset until its public availability, licence, provenance, and competition-rule compatibility are checked.
 - Do not rely on leaderboard score alone.
 - Final inference must not use report text because the competition says test reports will not be provided.
+## Implementation status — 2026-10-10
+
+The DINOv2 Base, PyTorch Version 1 model was added to the separate Kaggle notebook as an input. The observed directory is `/kaggle/input/models/metaresearch/dinov2/pytorch/base/1`, containing `config.json`, `preprocessor_config.json`, `README.md`, `pytorch_model.bin`, and `.gitattributes`. The model page reports a 346.39 MB checkpoint and Apache 2.0 licence.
+
+**Current state:** model input files are visible in the notebook. The feature-extraction smoke test and classifier experiment remain pending. No EXP-004 validation metric has been produced yet. Note that the originally proposed small variant was not what the selected listing exposed; Base is being used for this first attempt.
