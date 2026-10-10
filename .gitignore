@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+secrets/
+credentials.json
+
+# Data and large artifacts
+data/
+datasets/
+artifacts/
+checkpoints/
+weights/
+models/
+*.dcm
+*.nii
+*.nii.gz
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# Generated predictions and logs
+submissions/*.csv
+outputs/
+logs/
+*.log
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
