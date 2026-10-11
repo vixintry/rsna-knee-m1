@@ -117,6 +117,13 @@ def make_multilabel_folds(
 
     if (folds < 0).any() or set(folds.tolist()) != set(range(n_splits)):
         raise RuntimeError("internal fold assignment error: one or more folds are missing")
+    for f in range(n_splits):
+        yf = y[folds == f]
+        if len(yf) == 0 or (yf.sum(axis=0) == 0).any() or (yf.sum(axis=0) == len(yf)).any():
+            raise ValueError(
+                f"fold {f} lacks positive or negative support for at least one label; "
+                "inspect counts and reduce n_splits if needed"
+            )
     return folds
 
 
