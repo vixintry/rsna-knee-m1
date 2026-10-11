@@ -26,7 +26,9 @@ r"\b(?:acl|anterior cruciate ligament)\b.{0,40}\b(?:tear|torn|rupture|ruptured|s
 r"\b(?:tear|rupture|sprain|injury)\b.{0,40}\b(?:acl|anterior cruciate ligament)\b",
 r"\b(?:rotura|ruptura)\b.{0,40}\bligamento cruzado anterior\b",
 r"\b(?:rupture|déchirure)\b.{0,40}\bligament croisé antérieur\b",
-r"\bvoorste kruisband\b.{0,30}\b(?:scheur|ruptuur|letsel)\b"],
+r"\bvoorste kruisband\b.{0,30}\b(?:scheur|ruptuur|letsel)\b",
+r"\b(?:acl|anterior cruciate ligament)\b.{0,100}\b(?:high[- ]grade|low[- ]grade|partial|complete)(?: thickness)?\s+tear\b",
+r"\b(?:high[- ]grade|low[- ]grade|partial|complete)(?: thickness)?\s+tear\b.{0,100}\b(?:acl|anterior cruciate ligament)\b"],
 "negative": [
 r"\b(?:acl|anterior cruciate ligament)\b.{0,25}\b(?:intact|normal|unremarkable)\b",
 r"\b(?:no|without|absence of)\b.{0,40}\b(?:acl|anterior cruciate ligament)\b.{0,25}\b(?:tear|rupture|injury)\b",
@@ -52,6 +54,7 @@ r"\b(?:mediale meniscus|binnenmeniscus)\b.{0,30}\b(?:scheur|ruptuur)\b"],
 "negative": [
 r"\bmedial menisc(?:us|al)\b.{0,30}\b(?:intact|normal|not torn|no tear|without tear)\b",
 r"\b(?:no|without|absence of|no evidence of|no signs of)\b.{0,35}\b(?:tear|rupture)\b.{0,30}\bmedial menisc(?:us|al)\b",
+r"\b(?:no|without|absence of|no evidence of|no signs of)\b.{0,35}\bmedial menisc(?:us|al)\b.{0,30}\b(?:tear|torn|rupture)\b",
 r"\bmenisco (?:medial|interno)\b.{0,30}\b(?:sin rotura|normal|conservado)\b",
 r"\b(?:ménisque médial|ménisque interne)\b.{0,30}\b(?:intact|normal|sans déchirure)\b"]},
 "Lateral Meniscus": {
@@ -64,6 +67,7 @@ r"\b(?:laterale meniscus|buitenmeniscus)\b.{0,30}\b(?:scheur|ruptuur)\b"],
 "negative": [
 r"\blateral menisc(?:us|al)\b.{0,30}\b(?:intact|normal|not torn|no tear|without tear)\b",
 r"\b(?:no|without|absence of|no evidence of|no signs of)\b.{0,35}\b(?:tear|rupture)\b.{0,30}\blateral menisc(?:us|al)\b",
+r"\b(?:no|without|absence of|no evidence of|no signs of)\b.{0,35}\blateral menisc(?:us|al)\b.{0,30}\b(?:tear|torn|rupture)\b",
 r"\bmenisco lateral\b.{0,30}\b(?:sin rotura|normal|conservado)\b",
 r"\b(?:ménisque latéral|ménisque externe)\b.{0,30}\b(?:intact|normal|sans déchirure)\b"]},
 "Medial OA": {
@@ -120,9 +124,10 @@ r"\bno hay (?:evidencia de )?fractura\b", r"\bpas de fracture\b", r"\bkeine frak
 }
 
 UNCERTAINTY = re.compile(
-    r"\b(?:possible|possibly|probable|probably|suspected|suspicious for|cannot exclude|"
-    r"may represent|might represent|questionable|indeterminate|posible|posiblemente|"
-    r"sospecha de|no se puede descartar|suspect|à confirmer|mogelijk|verdacht voor)\b",
+    r"\b(?:rule\s+out|r/o|to exclude|possible|possibly|probable|probably|suspected|"
+    r"suspicious for|cannot exclude|may represent|might represent|questionable|"
+    r"indeterminate|posible|posiblemente|sospecha de|no se puede descartar|"
+    r"suspect|à confirmer|mogelijk|verdacht voor)\b",
     re.IGNORECASE,
 )
 COMPILED = {
@@ -131,8 +136,19 @@ COMPILED = {
 }
 
 def classify_report(report, target):
-    # Split before whitespace normalisation so newlines remain real boundaries.
     raw = str(report or "")
+
+    # Exclude clinical indication/history sections when a later report section
+    # is present. This prevents suspected diagnoses from becoming evidence.
+    raw = re.sub(
+        r"(?is)\b(?:clinical\s+)?(?:indication|clinical information|clinical history|"
+        r"history|reason for exam|clinical data)\s*:\s*.*?"
+        r"(?=\b(?:findings?|impression|conclusion|report|technique|comparison)\s*:|\Z)",
+        " ",
+        raw,
+    )
+
+    # Split before whitespace normalisation so sentence/newline boundaries remain.
     clauses = [
         re.sub(r"\s+", " ", part).strip()
         for part in re.split(r"(?<=[.;!?])\s+|\n+", raw)
@@ -142,24 +158,57 @@ def classify_report(report, target):
     uncertain = False
 
     for clause_index, clause in enumerate(clauses):
+        remainder_clause = bool(
+            re.match(r"^(?:the\s+)?remainder of\b", clause, re.IGNORECASE)
+        )
+
         for polarity in ("positive", "negative"):
             for pattern in COMPILED[target][polarity]:
                 for match in pattern.finditer(clause):
-                    context = clause[max(0, match.start()-80):min(len(clause), match.end()+80)]
+                    cue = match.group(0).strip()
+                    context = clause[
+                        max(0, match.start() - 100):
+                        min(len(clause), match.end() + 100)
+                    ]
+
                     if UNCERTAINTY.search(context):
                         uncertain = True
                         continue
-                    cue = match.group(0).strip()
-                    spans[polarity].append((clause_index, match.start(), match.end(), cue))
 
-    # Suppress only positive matches overlapping a negative phrase in the SAME
-    # clause. Identical offsets in different clauses are unrelated evidence.
-    negative_spans = [(clause, a, b) for clause, a, b, _ in spans["negative"]]
+                    # Loss of normal signal is abnormal ACL wording.
+                    if polarity == "negative" and target == "ACL":
+                        if re.search(
+                            r"\b(?:loss of normal|partial|attenuated|attenuation|"
+                            r"increased t2 signal|thinning)\b",
+                            clause,
+                            re.IGNORECASE,
+                        ):
+                            continue
+
+                    # The remainder being intact does not negate a tear elsewhere.
+                    if (
+                        polarity == "negative"
+                        and target in ("Medial Meniscus", "Lateral Meniscus")
+                        and remainder_clause
+                    ):
+                        continue
+
+                    spans[polarity].append(
+                        (clause_index, match.start(), match.end(), cue)
+                    )
+
+    negative_spans = [
+        (clause, start, end)
+        for clause, start, end, _ in spans["negative"]
+    ]
     positive = [
-        cue for clause, a, b, cue in spans["positive"]
+        cue
+        for clause, start, end, cue in spans["positive"]
         if not any(
-            clause == neg_clause and a < neg_b and neg_a < b
-            for neg_clause, neg_a, neg_b in negative_spans
+            clause == neg_clause
+            and start < neg_end
+            and neg_start < end
+            for neg_clause, neg_start, neg_end in negative_spans
         )
     ]
     negative = [cue for _, _, _, cue in spans["negative"]]
@@ -175,6 +224,7 @@ def classify_report(report, target):
     if uncertain:
         return np.nan, "uncertain", "", ""
     return np.nan, "unknown", "", ""
+
 
 def main():
     parser = argparse.ArgumentParser()
