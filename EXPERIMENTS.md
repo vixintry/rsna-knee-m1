@@ -90,7 +90,10 @@ This register contains results from actual Kaggle notebook runs reported in the 
 |---|---:|---:|---|
 | EXP-001: 3-slice slice-level CNN | 0.5018 | 0.0268 | Near-random overall; train macro AUC 0.6782 suggests a train/validation gap |
 | EXP-002: 3-slice study-level CNN | 0.4628 | 0.0168 | Worse on this split; predictions more compressed |
-| EXP-003: 9-slice study-level CNN | 0.5684 | Not reported | Highest observed score so far; still highly uncertain |
+| EXP-003: 9-slice study-level CNN | 0.5684 | Not reported | Highest observed score so far among scratch CNNs; still highly uncertain |
+| EXP-004: frozen DINOv2 + logistic regression | 0.5717 | Not reported | Highest recorded baseline; same tiny validation set |
+| EXP-005: TF-IDF report baseline | 0.5351 | Not reported | Diagnostic only; reports unavailable at test time |
+| EXP-006: DINOv2 + TF-IDF | 0.5665 | Not reported | Below EXP-004; not a valid report-dependent inference pipeline |
 
 ## Experiment record template
 
@@ -114,20 +117,45 @@ Copy for each meaningful experiment:
 - **Decision:** keep / reject / investigate
 - **Code commit:**
 
-### EXP-004 — DINOv2 Base feature extraction (setup in progress)
+### EXP-004 — Frozen DINOv2 features + logistic regression
 - **Date:** 2026-10-10
-- **Status:** setup complete; inference smoke test pending
-- **Hypothesis:** a pretrained visual encoder will provide more useful image features than the scratch CNNs given only 58 fully labelled studies.
-- **Change from baseline:** use the public Meta DINOv2 Base checkpoint as a frozen feature encoder before training a small 12-label classifier.
-- **Model source / licence:** Kaggle Models, `metaresearch/dinov2`, PyTorch Base, Version 1; Apache 2.0 as shown on the model page.
-- **Checkpoint location in Kaggle:** `/kaggle/input/models/metaresearch/dinov2/pytorch/base/1`
-- **Files observed:** `config.json`, `preprocessor_config.json`, `README.md`, `pytorch_model.bin`, `.gitattributes`; weights reported as 346.39 MB on the model page.
-- **Environment:** Kaggle notebook; Tesla T4 was available in previous experiments, but GPU availability for this run has not yet been confirmed.
-- **Validation split:** intended to reuse SPLIT-42-ACL-43-15 (43 train / 15 validation studies).
-- **Results:** none yet. Checkpoint attachment and file discovery are confirmed; successful model loading, feature extraction, training, and validation are not yet recorded.
-- **Next steps:** load with `local_files_only=True`; test one decoded knee slice; verify preprocessing and feature shape; then cache fixed-slice embeddings and train/evaluate the small multi-label classifier.
-- **Guardrail:** do not record an AUC or claim improvement until the run actually completes; compare on the same split and report all 12 target AUCs.
+- **Status:** completed; exploratory baseline
+- **Hypothesis:** a pretrained visual encoder provides more useful features than training a small CNN from scratch on only 58 fully labelled studies.
+- **Method:** extract nine slice embeddings per study using DINOv2 Base (768-dimensional CLS feature per slice); average slice features and fit per-target logistic-regression classifiers.
+- **Data/split:** 58 officially labelled studies; SPLIT-42-ACL-43-15 (43 train / 15 validation).
+- **Environment:** Kaggle GPU; later feature extraction log confirms CUDA/Tesla T4.
+- **Validation macro ROC-AUC:** 0.5717.
+- **Caveats:** only 15 validation studies; DICOM ordering was based on the existing selector and has not yet been geometry-audited. Full per-target results and exact classifier configuration should be recovered from the executed notebook before detailed model tuning.
+- **Decision:** retain as the strongest measured reference so far, but do not call it a winning or robust model.
 
+### EXP-005 — TF-IDF report baseline
+- **Date:** 2026-10-10
+- **Status:** completed; exploratory text baseline
+- **Hypothesis:** report language contains useful diagnostic information and can provide a text-only reference for comparison with image features.
+- **Method:** TF-IDF text features with a multi-target logistic-regression baseline, evaluated on the existing split.
+- **Validation macro ROC-AUC:** 0.5351.
+- **Caveats:** report text is available for training studies but test reports are unavailable at scoring, so this is a diagnostic/training-supervision experiment rather than a deployable test-time input. Detailed vocabulary/configuration, per-target metrics and runtime were not retained in the current register and should be recovered before reproduction.
+- **Decision:** keep as a diagnostic reference and potential source for audited report-derived supervision; do not use test reports.
+
+### EXP-006 — DINOv2 + TF-IDF feature combination
+- **Date:** 2026-10-10
+- **Status:** completed; exploratory multimodal comparison
+- **Hypothesis:** combining visual features with report-derived text features may capture complementary information.
+- **Method:** combine DINOv2 image features and TF-IDF report features in the existing exploratory evaluation.
+- **Validation macro ROC-AUC:** 0.5665.
+- **Caveats:** this is not a valid final test-time design because test reports are unavailable. The result is below EXP-004 on the same small split; detailed fusion configuration and per-target metrics need to be recovered before reproduction.
+- **Decision:** retain as a diagnostic experiment, not the final inference approach.
+
+### EXP-007 — Deterministic report weak-label audit
+- **Date:** 2026-10-11
+- **Status:** completed; audit only, not used for training
+- **Hypothesis:** reports from studies without complete official labels may provide additional supervision if uncertainty and conflicts are preserved.
+- **Method:** rule-based parser assigns positive, negative, unknown, uncertain or conflict states for each target; officially labelled studies are excluded from the weak-label pool.
+- **Regression tests:** 7/7 passed in Kaggle, including indication-versus-findings precedence, “remainder intact” cues, ACL partial-tear context, compartment-specific OA, contradictory synovitis statements and rule-out language.
+- **Audit scope:** 4,349 studies without complete official labels.
+- **Selected audit counts (known positive / known negative):** ACL 370/601; MCL 212/676; Medial Meniscus 677/424; Lateral Meniscus 258/761; Effusion 1,302/646; Synovitis 381/12. The three OA targets had positive candidates but zero known negative candidates in this parser audit (Medial OA 55 positives, Lateral OA 24, PF OA 70), so they are not usable binary training sets without further review.
+- **Caveats:** these are parser outputs, not verified clinical ground truth. Some reports are uncertain or conflicting; manually audit each target before using any weak labels.
+- **Decision:** keep as audit-only for now; do not train indiscriminately on hard weak labels.
 
 ## EXP-008 — DINOv2 test inference and submission generation
 
