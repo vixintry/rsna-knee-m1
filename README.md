@@ -6,7 +6,7 @@ A reproducible machine-learning research project for the Kaggle RSNA Knee Abnorm
 Maximise legitimate competition performance while preserving evaluation integrity, reproducibility, and clear experiment records.
 
 ## Status
-**Phase 0 — project setup and rules/data audit.** No model performance has been measured and no submission has been verified.
+**Baseline research underway.** EXP-001–EXP-006 have exploratory fixed-split results; EXP-007 audited weak report labels; EXP-008 passed a three-example inference smoke test. No full hidden-test run or verified competitive leaderboard result is recorded.
 
 ## Research principles
 - Never fabricate results or claim code ran unless it was executed.
@@ -25,14 +25,15 @@ Maximise legitimate competition performance while preserving evaluation integrit
 - [DECISIONS.md](DECISIONS.md) — approved decisions and changes
 - [RESEARCH_LOG.md](RESEARCH_LOG.md) — observations and conclusions
 - [EXPERIMENTS.md](EXPERIMENTS.md) — experiment index and results
+- [docs/COMPETITIVE_RESEARCH_PLAN.md](docs/COMPETITIVE_RESEARCH_PLAN.md) — out-of-fold validation, 2.5D/multi-plane MRI, LLM-assisted report supervision, and the next experiments
 
 ## Initial workflow
 1. Confirm competition rules, eligibility, metric, and deadlines.
 2. Inspect CSV schemas, label availability, study IDs, series descriptors, and data access.
 3. Establish a reproducible study-level validation split.
-4. Implement and evaluate a baseline.
-5. Run hypothesis-driven experiments and record outcomes.
-6. Select the final model using validation evidence and verify submission formatting.
+4. Preserve existing baseline results, then establish deterministic study-level out-of-fold validation.
+5. Audit DICOM geometry and series selection; compare multi-plane/2.5D inputs and report-derived supervision with controlled experiments.
+6. Select the final model using out-of-fold evidence and verify full hidden-test submission execution.
 
 ## Data and artifacts
 Do not commit competition data, trained weights, predictions, or other large artifacts. Keep them in approved storage and record versions/checksums where practical.
