@@ -132,12 +132,34 @@ Copy for each meaningful experiment:
 ## EXP-008 — DINOv2 test inference and submission generation
 
 - **Date added:** 2026-10-11
-- **Status:** implementation added to notebook; **not yet executed**
+- **Status:** smoke-tested on the three example test studies; full hidden-test run not yet executed
 - **Hypothesis:** the EXP-004 frozen DINOv2 embeddings plus per-target logistic regression can produce a structurally valid submission from permitted test-time MRI inputs.
 - **Change:** extract nine evenly spaced slices from the selected fluid-sensitive sagittal series (coronal fluid-sensitive fallback), average DINOv2 CLS embeddings, fit one standardized logistic-regression classifier per target on all 58 fully labelled studies, and predict the test studies.
 - **Data/split:** all 58 fully labelled studies used for final fitting after EXP-004's fixed split has served for exploratory validation; test studies are used only for inference.
 - **Output:** `/kaggle/working/submission.csv`; intermediate test embeddings and metadata are saved under `/kaggle/working/exp008_test_features`.
 - **Integrity checks in code:** target-column order, row count, study-ID order/uniqueness, finite values, and probabilities in [0, 1]; strict failure on missing eligible series or invalid labels/features.
-- **Runtime / memory / output verification:** not measured yet.
-- **Leaderboard result:** none. Generating a valid CSV does not establish predictive performance.
-- **Next action:** execute in Kaggle with GPU enabled, inspect logs and output, then record actual runtime and any failures before submitting.
+- **Smoke-test run:** executed in Kaggle with GPU enabled (CUDA). EXP-004 feature extraction completed for 58 labelled studies in 37.45 s; test feature extraction completed for 3 example studies in 1.87 s. Test feature shape `(3, 9, 768)`.
+- **Output validation:** `/kaggle/working/submission.csv`, shape `(3, 13)`, exact target columns/order, all predictions finite and within `[0, 1]`.
+- **Scope limitation:** Kaggle's checked-in sample test files intentionally contain 3 example studies; scoring substitutes the hidden test set. The full scoring-environment run has not yet been executed.
+- **Leaderboard result:** none. This is an inference smoke test, not evidence of predictive performance.
+- **Next action:** evaluate models under the planned study-level out-of-fold protocol, then verify full hidden-test inference and runtime.
+
+
+## Competitive research roadmap (planned, not completed)
+
+The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH_PLAN.md](docs/COMPETITIVE_RESEARCH_PLAN.md). Planned experiments:
+
+| ID | Work | Status |
+|---|---|---|
+| EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
+| EXP-010 | Deterministic study-level multi-label-aware OOF folds and metric tests | Planned |
+| EXP-011 | Re-evaluate image and text baselines on identical OOF folds | Planned |
+| EXP-012 | 2.5D adjacent-slice windows | Planned |
+| EXP-013 | Multi-plane/sequence ablations | Planned |
+| EXP-014 | LLM-assisted report-label quality audit | Planned |
+| EXP-015 | Weak-supervised image training with strict gold-fold isolation | Planned |
+| EXP-016 | Clinical-state auxiliary targets | Planned |
+| EXP-017 | Verify and evaluate a medical-image foundation encoder | Planned |
+| EXP-018 | Evaluate a complementary ensemble using OOF predictions | Planned |
+
+None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not assign them scores until measured.
