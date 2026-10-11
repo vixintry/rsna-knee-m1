@@ -131,31 +131,38 @@ COMPILED = {
 }
 
 def classify_report(report, target):
-    # Evaluate evidence within sentence/clause segments to prevent cues about
-    # one structure leaking across punctuation to another structure.
-    text = re.sub(r"\s+", " ", str(report or ""))
-    clauses = [part.strip() for part in re.split(r"(?<=[.;!?])\s+|\n+", text) if part.strip()]
+    # Split before whitespace normalisation so newlines remain real boundaries.
+    raw = str(report or "")
+    clauses = [
+        re.sub(r"\s+", " ", part).strip()
+        for part in re.split(r"(?<=[.;!?])\s+|\n+", raw)
+        if part.strip()
+    ]
     spans = {"positive": [], "negative": []}
     uncertain = False
 
-    for clause in clauses:
+    for clause_index, clause in enumerate(clauses):
         for polarity in ("positive", "negative"):
             for pattern in COMPILED[target][polarity]:
                 for match in pattern.finditer(clause):
-                    # Uncertainty in this clause invalidates its candidate cues.
-                    if UNCERTAINTY.search(clause):
+                    context = clause[max(0, match.start()-80):min(len(clause), match.end()+80)]
+                    if UNCERTAINTY.search(context):
                         uncertain = True
                         continue
                     cue = match.group(0).strip()
-                    spans[polarity].append((match.start(), match.end(), cue))
+                    spans[polarity].append((clause_index, match.start(), match.end(), cue))
 
-    # Suppress only positive matches overlapping an explicit negative phrase.
-    negative_spans = [(a, b) for a, b, _ in spans["negative"]]
+    # Suppress only positive matches overlapping a negative phrase in the SAME
+    # clause. Identical offsets in different clauses are unrelated evidence.
+    negative_spans = [(clause, a, b) for clause, a, b, _ in spans["negative"]]
     positive = [
-        cue for a, b, cue in spans["positive"]
-        if not any(a < neg_b and neg_a < b for neg_a, neg_b in negative_spans)
+        cue for clause, a, b, cue in spans["positive"]
+        if not any(
+            clause == neg_clause and a < neg_b and neg_a < b
+            for neg_clause, neg_a, neg_b in negative_spans
+        )
     ]
-    negative = [cue for _, _, cue in spans["negative"]]
+    negative = [cue for _, _, _, cue in spans["negative"]]
     positive = list(dict.fromkeys(positive))
     negative = list(dict.fromkeys(negative))
 
