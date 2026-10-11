@@ -68,22 +68,24 @@ r"\bmenisco lateral\b.{0,30}\b(?:sin rotura|normal|conservado)\b",
 r"\b(?:ménisque latéral|ménisque externe)\b.{0,30}\b(?:intact|normal|sans déchirure)\b"]},
 "Medial OA": {
 "positive": [
-r"\bmedial\b.{0,35}\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b",
-r"\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b.{0,35}\bmedial\b",
+r"\bmedial (?:femorotibial |tibiofemoral )?compartment\b.{0,35}\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b",
+r"\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b.{0,35}\bmedial (?:femorotibial |tibiofemoral )?compartment\b",
 r"\bartrosis femorotibial medial\b",
-r"\bcompartiment médial\b.{0,35}\b(?:arthrose|ostéoarthrose)\b"],
+r"\bartrosis (?:del )?compartimento medial\b",
+r"\bcompartiment médial\b.{0,25}\b(?:arthrose|ostéoarthrose)\b"],
 "negative": [
-r"\bno\b.{0,25}\bmedial (?:compartment )?(?:osteoarthritis|osteoarthrosis|arthrosis)\b",
-r"\bpas d['’]arthrose\b.{0,35}\b(?:compartiment médial|médial)\b"]},
+r"\bno\b.{0,25}\bmedial (?:femorotibial |tibiofemoral )?compartment (?:osteoarthritis|osteoarthrosis|arthrosis)\b",
+r"\bpas d['’]arthrose\b.{0,35}\b(?:compartiment médial|compartimento medial)\b"]},
 "Lateral OA": {
 "positive": [
-r"\blateral\b.{0,35}\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b",
-r"\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b.{0,35}\blateral\b",
+r"\blateral (?:femorotibial |tibiofemoral )?compartment\b.{0,35}\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b",
+r"\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose|gonarthrosis)\b.{0,35}\blateral (?:femorotibial |tibiofemoral )?compartment\b",
 r"\bartrosis femorotibial lateral\b",
-r"\bcompartiment latéral\b.{0,35}\b(?:arthrose|ostéoarthrose)\b"],
+r"\bartrosis (?:del )?compartimento lateral\b",
+r"\bcompartiment latéral\b.{0,25}\b(?:arthrose|ostéoarthrose)\b"],
 "negative": [
-r"\bno\b.{0,25}\blateral (?:compartment )?(?:osteoarthritis|osteoarthrosis|arthrosis)\b",
-r"\bpas d['’]arthrose\b.{0,35}\b(?:compartiment latéral|latéral)\b"]},
+r"\bno\b.{0,25}\blateral (?:femorotibial |tibiofemoral )?compartment (?:osteoarthritis|osteoarthrosis|arthrosis)\b",
+r"\bpas d['’]arthrose\b.{0,35}\b(?:compartiment latéral|compartimento lateral)\b"]},
 "PF OA": {
 "positive": [
 r"\bpatellofemoral\b.{0,35}\b(?:osteoarthritis|osteoarthrosis|arthrosis|artrosis|arthrose)\b",
@@ -129,22 +131,25 @@ COMPILED = {
 }
 
 def classify_report(report, target):
+    # Evaluate evidence within sentence/clause segments to prevent cues about
+    # one structure leaking across punctuation to another structure.
     text = re.sub(r"\s+", " ", str(report or ""))
+    clauses = [part.strip() for part in re.split(r"(?<=[.;!?])\s+|\n+", text) if part.strip()]
     spans = {"positive": [], "negative": []}
     uncertain = False
-    for polarity in ("positive", "negative"):
-        for pattern in COMPILED[target][polarity]:
-            for match in pattern.finditer(text):
-                context = text[max(0, match.start()-80):min(len(text), match.end()+80)]
-                if UNCERTAINTY.search(context):
-                    uncertain = True
-                    continue
-                cue = match.group(0).strip()
-                spans[polarity].append((match.start(), match.end(), cue))
 
-    # A positive keyword can also occur inside an explicit negative phrase
-    # (e.g. "no knee effusion"). Suppress only overlapping positive matches;
-    # separate positive and negative evidence elsewhere remains a conflict.
+    for clause in clauses:
+        for polarity in ("positive", "negative"):
+            for pattern in COMPILED[target][polarity]:
+                for match in pattern.finditer(clause):
+                    # Uncertainty in this clause invalidates its candidate cues.
+                    if UNCERTAINTY.search(clause):
+                        uncertain = True
+                        continue
+                    cue = match.group(0).strip()
+                    spans[polarity].append((match.start(), match.end(), cue))
+
+    # Suppress only positive matches overlapping an explicit negative phrase.
     negative_spans = [(a, b) for a, b, _ in spans["negative"]]
     positive = [
         cue for a, b, cue in spans["positive"]
