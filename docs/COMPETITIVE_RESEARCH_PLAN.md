@@ -91,7 +91,7 @@ The existing split (43 train / 15 validation, seed 42, stratified on ACL) is use
 7. Because there are only 58 studies, treat fold variability as substantial uncertainty. Do not over-tune architecture/hyperparameters to one OOF result.
 8. After choosing a method, retrain using all eligible training data for the final inference model. The hidden test set is never used for model selection.
 
-A 5-fold design is proposed, not yet implemented or approved by a successful test. If label counts make a fold design invalid, document that before changing the number of folds.
+A deterministic fold-assignment utility and AUC helpers have been implemented with unit tests. Seven tests passed locally on synthetic data; the utility has **not yet been run against the actual 58-study competition CSV**, so fold feasibility and per-label support remain unverified. If actual label counts or fold support make the design invalid, document that before changing the number of folds.
 
 ## 6. Experiment order and gates
 
@@ -118,9 +118,9 @@ A 5-fold design is proposed, not yet implemented or approved by a successful tes
 
 ## 7. Immediate next actions
 
-1. Implement the DICOM geometry/series audit (EXP-009) and tests; do not change the current baseline silently.
-2. Implement and test deterministic OOF folds and metric handling (EXP-010).
-3. Recompute reference baselines on the new folds (EXP-011).
+1. Run scripts/create_oof_folds.py on the actual Kaggle train.csv and inspect all 12 targets' per-fold support; fix any issue before training.
+2. Implement the DICOM geometry/series audit (EXP-009) and tests; do not change the current baseline silently.
+3. Build the OOF training/evaluation runner and recompute reference baselines on the new folds (EXP-010/011).
 4. Only then choose whether multi-plane 2.5D modelling or LLM-derived soft labels is the highest-value next experiment.
 
 ## 8. Evidence policy
