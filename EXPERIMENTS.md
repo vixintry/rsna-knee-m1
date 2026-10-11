@@ -127,3 +127,17 @@ Copy for each meaningful experiment:
 - **Results:** none yet. Checkpoint attachment and file discovery are confirmed; successful model loading, feature extraction, training, and validation are not yet recorded.
 - **Next steps:** load with `local_files_only=True`; test one decoded knee slice; verify preprocessing and feature shape; then cache fixed-slice embeddings and train/evaluate the small multi-label classifier.
 - **Guardrail:** do not record an AUC or claim improvement until the run actually completes; compare on the same split and report all 12 target AUCs.
+
+
+## EXP-008 — DINOv2 test inference and submission generation
+
+- **Date added:** 2026-10-11
+- **Status:** implementation added to notebook; **not yet executed**
+- **Hypothesis:** the EXP-004 frozen DINOv2 embeddings plus per-target logistic regression can produce a structurally valid submission from permitted test-time MRI inputs.
+- **Change:** extract nine evenly spaced slices from the selected fluid-sensitive sagittal series (coronal fluid-sensitive fallback), average DINOv2 CLS embeddings, fit one standardized logistic-regression classifier per target on all 58 fully labelled studies, and predict the test studies.
+- **Data/split:** all 58 fully labelled studies used for final fitting after EXP-004's fixed split has served for exploratory validation; test studies are used only for inference.
+- **Output:** `/kaggle/working/submission.csv`; intermediate test embeddings and metadata are saved under `/kaggle/working/exp008_test_features`.
+- **Integrity checks in code:** target-column order, row count, study-ID order/uniqueness, finite values, and probabilities in [0, 1]; strict failure on missing eligible series or invalid labels/features.
+- **Runtime / memory / output verification:** not measured yet.
+- **Leaderboard result:** none. Generating a valid CSV does not establish predictive performance.
+- **Next action:** execute in Kaggle with GPU enabled, inspect logs and output, then record actual runtime and any failures before submitting.
