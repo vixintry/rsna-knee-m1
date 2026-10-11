@@ -6,7 +6,7 @@ A reproducible machine-learning research project for the Kaggle RSNA Knee Abnorm
 Maximise legitimate competition performance while preserving evaluation integrity, reproducibility, and clear experiment records.
 
 ## Status
-**Phase 0 — project setup and rules/data audit.** No model performance has been measured and no submission has been verified.
+**Exploratory modelling in progress.** EXP-001 to EXP-006 have been run on the fixed 43/15 split of the 58 fully labelled studies. The best observed single-split validation macro ROC-AUC is 0.5717 (frozen DINOv2 features + logistic regression). This tiny validation set is not a reliable estimate of leaderboard performance. EXP-007 adds a conservative report-derived weak-label audit; it is committed but not yet run.
 
 ## Research principles
 - Never fabricate results or claim code ran unless it was executed.
@@ -25,6 +25,20 @@ Maximise legitimate competition performance while preserving evaluation integrit
 - [DECISIONS.md](DECISIONS.md) — approved decisions and changes
 - [RESEARCH_LOG.md](RESEARCH_LOG.md) — observations and conclusions
 - [EXPERIMENTS.md](EXPERIMENTS.md) — experiment index and results
+
+## Current experiment status
+
+| Experiment | Validation macro ROC-AUC | Status |
+|---|---:|---|
+| EXP-001: 3-slice CNN | 0.5018 | Exploratory baseline |
+| EXP-002: 3-slice study-level CNN | 0.4628 | Exploratory baseline |
+| EXP-003: 9-slice study-level CNN | 0.5684 | Exploratory baseline |
+| EXP-004: DINOv2 features + logistic regression | 0.5717 | Best observed on current split |
+| EXP-005: TF-IDF report-only | 0.5351 | Completed |
+| EXP-006: Image + TF-IDF | 0.5665 | Completed |
+| EXP-007: Report-derived weak-label audit | — | Implemented; not run |
+
+All six AUC values use the same 15-study validation partition and should be treated as highly uncertain. The 4,349 reports without official labels are not ground truth; EXP-007 only proposes conservative weak labels and must be audited before training.
 
 ## Initial workflow
 1. Confirm competition rules, eligibility, metric, and deadlines.
