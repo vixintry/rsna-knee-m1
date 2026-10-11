@@ -6,7 +6,7 @@ A reproducible machine-learning research project for the Kaggle RSNA Knee Abnorm
 Maximise legitimate competition performance while preserving evaluation integrity, reproducibility, and clear experiment records.
 
 ## Status
-**Baseline research underway.** EXP-001–EXP-006 have exploratory fixed-split results; EXP-007 audited weak report labels; EXP-008 passed a three-example inference smoke test. No full hidden-test run or verified competitive leaderboard result is recorded.
+**Baseline research underway.** EXP-001–EXP-006 have exploratory fixed-split results; EXP-007 audited weak report labels; EXP-008 passed a three-example inference smoke test. No full hidden-test run or verified competitive leaderboard result is recorded. Deterministic fold/AUC utilities have been added with synthetic-data tests; actual OOF folds and baseline re-evaluation are still pending.
 
 ## Research principles
 - Never fabricate results or claim code ran unless it was executed.
