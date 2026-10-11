@@ -130,7 +130,7 @@ COMPILED = {
 
 def classify_report(report, target):
     text = re.sub(r"\s+", " ", str(report or ""))
-    hits = {"positive": [], "negative": []}
+    spans = {"positive": [], "negative": []}
     uncertain = False
     for polarity in ("positive", "negative"):
         for pattern in COMPILED[target][polarity]:
@@ -140,14 +140,26 @@ def classify_report(report, target):
                     uncertain = True
                     continue
                 cue = match.group(0).strip()
-                if cue not in hits[polarity]:
-                    hits[polarity].append(cue)
-    if hits["positive"] and hits["negative"]:
-        return np.nan, "conflict", " | ".join(hits["positive"]), " | ".join(hits["negative"])
-    if hits["positive"]:
-        return 1.0, "positive", " | ".join(hits["positive"]), ""
-    if hits["negative"]:
-        return 0.0, "negative", "", " | ".join(hits["negative"])
+                spans[polarity].append((match.start(), match.end(), cue))
+
+    # A positive keyword can also occur inside an explicit negative phrase
+    # (e.g. "no knee effusion"). Suppress only overlapping positive matches;
+    # separate positive and negative evidence elsewhere remains a conflict.
+    negative_spans = [(a, b) for a, b, _ in spans["negative"]]
+    positive = [
+        cue for a, b, cue in spans["positive"]
+        if not any(a < neg_b and neg_a < b for neg_a, neg_b in negative_spans)
+    ]
+    negative = [cue for _, _, cue in spans["negative"]]
+    positive = list(dict.fromkeys(positive))
+    negative = list(dict.fromkeys(negative))
+
+    if positive and negative:
+        return np.nan, "conflict", " | ".join(positive), " | ".join(negative)
+    if positive:
+        return 1.0, "positive", " | ".join(positive), ""
+    if negative:
+        return 0.0, "negative", "", " | ".join(negative)
     if uncertain:
         return np.nan, "uncertain", "", ""
     return np.nan, "unknown", "", ""
