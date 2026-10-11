@@ -7,6 +7,10 @@ This register contains results from actual Kaggle notebook runs reported in the 
 | EXP-001 | 2026-10-10 | Three-slice slice-level CNN baseline | Completed | Validation macro ROC-AUC 0.5018; training macro ROC-AUC 0.6782 |
 | EXP-002 | 2026-10-10 | Study-level CNN with 3 slices as channels | Completed | Validation macro ROC-AUC 0.4628 |
 | EXP-003 | 2026-10-10 | Study-level CNN with 9 slices as channels | Completed | Validation macro ROC-AUC 0.5684 |
+| EXP-004 | 2026-10-11 | Frozen DINOv2 Base embeddings + logistic regression | Completed | Validation macro ROC-AUC 0.5717 |
+| EXP-005 | 2026-10-11 | TF-IDF report-only logistic regression | Completed | Validation macro ROC-AUC 0.5351 |
+| EXP-006 | 2026-10-11 | DINOv2 image embeddings + TF-IDF report features | Completed | Validation macro ROC-AUC 0.5665 |
+| EXP-007 | 2026-10-11 | Conservative report-derived weak-label generation | Implementation committed; not run | No result yet |
 
 ## Shared data and validation context
 
@@ -90,7 +94,10 @@ This register contains results from actual Kaggle notebook runs reported in the 
 |---|---:|---:|---|
 | EXP-001: 3-slice slice-level CNN | 0.5018 | 0.0268 | Near-random overall; train macro AUC 0.6782 suggests a train/validation gap |
 | EXP-002: 3-slice study-level CNN | 0.4628 | 0.0168 | Worse on this split; predictions more compressed |
-| EXP-003: 9-slice study-level CNN | 0.5684 | Not reported | Highest observed score so far; still highly uncertain |
+| EXP-003: 9-slice study-level CNN | 0.5684 | Not reported | Highest observed score among scratch CNNs; still highly uncertain |
+| EXP-004: DINOv2 Base + logistic regression | 0.5717 | Not reported | Highest observed single-split score; only +0.0033 vs EXP-003 |
+| EXP-005: TF-IDF text-only | 0.5351 | Not reported | Below both image baselines on this split |
+| EXP-006: DINOv2 + TF-IDF | 0.5665 | Not reported | Below image-only EXP-004 by 0.0052 |
 
 ## Experiment record template
 
@@ -114,16 +121,45 @@ Copy for each meaningful experiment:
 - **Decision:** keep / reject / investigate
 - **Code commit:**
 
-### EXP-004 — DINOv2 Base feature extraction (setup in progress)
-- **Date:** 2026-10-10
-- **Status:** setup complete; inference smoke test pending
-- **Hypothesis:** a pretrained visual encoder will provide more useful image features than the scratch CNNs given only 58 fully labelled studies.
-- **Change from baseline:** use the public Meta DINOv2 Base checkpoint as a frozen feature encoder before training a small 12-label classifier.
-- **Model source / licence:** Kaggle Models, `metaresearch/dinov2`, PyTorch Base, Version 1; Apache 2.0 as shown on the model page.
-- **Checkpoint location in Kaggle:** `/kaggle/input/models/metaresearch/dinov2/pytorch/base/1`
-- **Files observed:** `config.json`, `preprocessor_config.json`, `README.md`, `pytorch_model.bin`, `.gitattributes`; weights reported as 346.39 MB on the model page.
-- **Environment:** Kaggle notebook; Tesla T4 was available in previous experiments, but GPU availability for this run has not yet been confirmed.
-- **Validation split:** intended to reuse SPLIT-42-ACL-43-15 (43 train / 15 validation studies).
-- **Results:** none yet. Checkpoint attachment and file discovery are confirmed; successful model loading, feature extraction, training, and validation are not yet recorded.
-- **Next steps:** load with `local_files_only=True`; test one decoded knee slice; verify preprocessing and feature shape; then cache fixed-slice embeddings and train/evaluate the small multi-label classifier.
-- **Guardrail:** do not record an AUC or claim improvement until the run actually completes; compare on the same split and report all 12 target AUCs.
+### EXP-004 — DINOv2 Base embeddings + logistic regression
+- **Date:** 2026-10-11
+- **Status:** completed; exploratory baseline
+- **Hypothesis:** frozen pretrained visual embeddings may transfer better than a CNN trained from scratch on 43 labelled studies.
+- **Change from baseline:** DINOv2 Base (Kaggle Models, metaresearch/dinov2, PyTorch Base Version 1; Apache 2.0 as displayed on the model page) used as a frozen encoder. Nine evenly spaced slices per study; CLS token (768 dimensions) extracted per slice and averaged to one study vector; logistic regression per target.
+- **Data:** 58 fully labelled studies; 43 train / 15 validation; split ID SPLIT-42-ACL-43-15. Weak/unlabelled studies were not used for this experiment.
+- **Feature cache:** shape (58, 9, 768); all values finite; unique study IDs; 522 slice embeddings; extraction completed in 48.79 seconds on CUDA. Cache remained in Kaggle working storage and was not committed.
+- **Validation macro ROC-AUC:** 0.5717 across 12 targets.
+- **Per-target AUC:** ACL 0.2778; MCL 0.5833; Medial Meniscus 0.5179; Lateral Meniscus 0.6667; Medial OA 0.7308; Lateral OA 0.8056; PF OA 0.5833; Effusion 0.8200; Synovitis 0.5741; Baker's 0.5000; Contusion 0.4815; Fracture 0.3200.
+- **Conclusion:** +0.0033 versus EXP-003, not meaningful evidence of improvement given the tiny validation set.
+- **Decision:** keep as the best observed single-split result, but do not claim competition readiness.
+
+### EXP-005 — TF-IDF report-only baseline
+- **Date:** 2026-10-11
+- **Status:** completed; exploratory baseline
+- **Hypothesis:** diagnostic reports may encode target information.
+- **Method:** TF-IDF word unigrams/bigrams, vocabulary fitted on the 43 training reports only, one balanced logistic regression per target. Official labels only; no weak labels used.
+- **Split:** SPLIT-42-ACL-43-15.
+- **Validation macro ROC-AUC:** 0.5351.
+- **Per-target AUC:** ACL 0.4815; MCL 0.6389; Medial Meniscus 0.5179; Lateral Meniscus 0.5741; Medial OA 0.9231; Lateral OA 0.5278; PF OA 0.3889; Effusion 0.6200; Synovitis 0.3889; Baker's 0.2778; Contusion 0.4630; Fracture 0.6200.
+- **Conclusion:** lower than image-only baselines on this split. This does not establish that report-derived supervision is useless because only 43 reports were used for supervised fitting.
+
+### EXP-006 — Combined DINOv2 and TF-IDF features
+- **Date:** 2026-10-11
+- **Status:** completed; exploratory baseline
+- **Hypothesis:** text features may add complementary information to image embeddings.
+- **Method:** averaged DINOv2 study embeddings concatenated with TF-IDF report features; balanced logistic regression with C=0.1; transformations fitted on the training split only.
+- **Split:** SPLIT-42-ACL-43-15.
+- **Validation macro ROC-AUC:** 0.5665.
+- **Per-target AUC:** ACL 0.2593; MCL 0.5833; Medial Meniscus 0.4821; Lateral Meniscus 0.6667; Medial OA 0.6923; Lateral OA 0.8333; PF OA 0.5833; Effusion 0.8400; Synovitis 0.5926; Baker's 0.4444; Contusion 0.5000; Fracture 0.3200.
+- **Conclusion:** 0.0052 below EXP-004. Concatenation did not improve the score on this split.
+- **Decision:** do not tune repeatedly on the same 15-study validation set; investigate weak supervision from the 4,349 unlabelled reports instead.
+
+### EXP-007 — Conservative report-derived weak-label generation
+- **Date:** 2026-10-11
+- **Status:** implementation committed; not yet run
+- **Hypothesis:** explicit report findings may provide noisy labels for some of the 4,349 studies that lack official labels.
+- **Method:** conservative multilingual rules emit positive (1), explicit negative (0), or unknown (blank). Reports with any official target label are excluded from weak-label generation. Silence is never treated as negative; uncertain/conflicting cues remain unknown.
+- **Outputs:** weak_labels.csv, weak_label_audit.csv, and weak_label_summary.csv in Kaggle working storage.
+- **Validation:** none yet. No label coverage, label accuracy, or model performance has been claimed.
+- **Required next step:** run the script with GPU OFF; manually inspect a sample of cues/statuses and measure agreement against the 58 gold-labelled reports as a diagnostic only. Do not use those 58 studies as weak-label training examples.
+- **Code:** scripts/derive_report_weak_labels.py; experiment plan: reports/2026-10-11-exp007-weak-label-plan.md.
