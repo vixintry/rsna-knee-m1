@@ -50,3 +50,47 @@ These specifications are read from user-provided screenshots. Actual free memory
 3. Avoid downloading the entire DICOM dataset locally; start with small CSV audits.
 4. Audit label missingness, prevalence, and study/series identifier consistency.
 5. Choose a validation protocol based on the number of genuinely labelled studies.
+
+
+## 2026-10-11 — Corrected current status and competitive direction
+
+This entry supersedes the earlier initialization snapshot above where it conflicts with later executed work. The earlier snapshot is retained as historical context.
+
+### Confirmed data audit
+
+- train.csv contains 4,407 studies and 12 target columns plus Report.
+- 58 studies have complete official labels. The other 4,349 studies must not be treated as having negative labels.
+- The mounted test.csv and sample_submission.csv contain three example studies. The official competition scoring workflow substitutes the hidden test set; the three-row file is not a misconfigured full test set.
+- train_series.csv contains 24,371 series rows; test_series.csv contains 15 rows in the example data.
+- The series metadata includes fluid sensitivity, fat suppression and anatomical plane. Correctly using this metadata and the DICOM geometry is an important next step.
+
+### Measured baseline results
+
+The current experiment register contains EXP-001 through EXP-006 with fixed-split macro AUCs between 0.4628 and 0.5717. The fixed split contains 43 training and 15 validation studies. These results are highly uncertain and are not a reliable estimate of hidden-test performance.
+
+### EXP-007 weak-report-label audit
+
+The deterministic report parser and its seven regression cases were run in Kaggle; all 7/7 passed. The audit processed the 4,349 studies without complete official labels. Report-derived labels are noisy: some targets have very few usable negatives, and uncertain/conflicting cases remain. Decision: retain this as an audit, not as a source of indiscriminately hard training labels.
+
+### EXP-008 inference smoke test
+
+- The EXP-004 DINOv2 feature cache was regenerated for 58 fully labelled studies on CUDA in 37.45 seconds; cached feature shape was (58, 9, 768) and values were finite.
+- EXP-008 extracted features for the three example test studies on CUDA in 1.87 seconds; test feature shape was (3, 9, 768).
+- It wrote /kaggle/working/submission.csv, shape (3, 13), with the expected column order and finite probabilities in [0, 1].
+- This confirms only that the pipeline ran on the example data. It does not establish model quality, full hidden-test execution, or leaderboard performance.
+
+### Competitive research notes recovered
+
+The user-provided Library document “🦴 RSNA Knee 2026.docx” contains a much more ambitious approach than the current DINOv2 baseline. It describes: report-derived soft/probabilistic labels from unlabelled studies; richer clinical-state targets; adjacent-slice 2.5D windows; multiple sagittal/coronal/axial planes and complementary sequences; DICOM geometry and physical-scale handling; label-specific attention across image windows; and medical-image foundation encoders. The document also reports high leaderboard/AUC figures, but those claims, external weights and exact reproducibility have **not** been independently verified in this project. They are hypotheses/reference material, not our results.
+
+The intended strategy is to use an LLM as a structured, auditable report-labeling assistant to unlock useful supervision from reports, then train an image model to predict from permitted MRI inputs. At validation time, held-out gold studies must be excluded from every training path, including report-derived targets. Test reports remain unavailable and must never be used.
+
+### Approved next phase
+
+Follow docs/COMPETITIVE_RESEARCH_PLAN.md:
+1. Audit DICOM geometry, series selection and slice order.
+2. Build deterministic study-level out-of-fold validation with per-label support and explicit undefined-AUC handling.
+3. Re-evaluate baselines on the same folds.
+4. Test 2.5D/multi-plane inputs and report-derived soft/state supervision through controlled ablations.
+
+No EXP-009 or later experiment is claimed complete in this entry.
