@@ -180,7 +180,7 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | ID | Work | Status |
 |---|---|---|
 | EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
-| EXP-010 | Deterministic study-level multi-label-aware OOF folds and metric tests | Fold/AUC utilities added; 7 synthetic-data unit tests passed; real CSV/fold feasibility pending |
+| EXP-010 | Deterministic study-level multi-label-aware OOF folds and metric tests | Fold/AUC utilities and Kaggle audit cell added; 7 synthetic-data unit tests passed; real CSV/fold feasibility pending |
 | EXP-011 | Re-evaluate image and text baselines on identical OOF folds | Planned |
 | EXP-012 | 2.5D adjacent-slice windows | Planned |
 | EXP-013 | Multi-plane/sequence ablations | Planned |
