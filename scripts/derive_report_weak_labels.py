@@ -180,7 +180,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-csv", default="/kaggle/input/competitions/rsna-knee-abnormality-detection/train.csv")
     parser.add_argument("--output-dir", default="/kaggle/working/exp007_weak_labels")
-    args = parser.parse_args()
+    args, _ = parser.parse_known_args()
     df = pd.read_csv(args.input_csv)
     required = {"StudyInstanceUID", "Report", *TARGETS}
     missing = sorted(required.difference(df.columns))
