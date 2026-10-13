@@ -189,8 +189,8 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | ID | Work | Status |
 |---|---|---|
 | EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
-| EXP-010 | Deterministic study-level folds and integrity audit | Provisional; original fold file lost, replacement regenerated, integrity audit pending; exact original membership not proven. |
-| EXP-011 | DINOv2 image-only baseline on reported five-fold OOF validation | Results recorded; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). Fold provenance is unresolved; see [DECISIONS.md](DECISIONS.md) and [configs/folds/exp010_folds_PROVENANCE.json](configs/folds/exp010_folds_PROVENANCE.json). |
+| EXP-010 | Deterministic study-level folds and integrity audit | Saved fold file passed the 2026-10-13 integrity audit; 58 study IDs matched exactly, fold support reproduced, and saved assignment reproduced by the repository generator. Historical identity with the first run's original assignment is still unproven; raw fold CSV still needs committing. |
+| EXP-011 | DINOv2 image-only baseline on reported five-fold OOF validation | Results recorded; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). The saved EXP-010 fold file passed integrity/reproducibility checks on 2026-10-13, but its identity with the first run's historical assignment is not proven. See [DECISIONS.md](DECISIONS.md), [results/EXP-010/FOLD_AUDIT.md](results/EXP-010/FOLD_AUDIT.md), and [configs/folds/exp010_folds_PROVENANCE.json](configs/folds/exp010_folds_PROVENANCE.json). |
 | EXP-012 | 2.5D adjacent-slice windows | Planned |
 | EXP-013 | Multi-plane/sequence ablations | Planned |
 | EXP-014 | LLM-assisted report-label quality audit | Planned |
@@ -204,13 +204,13 @@ None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not as
 
 ## EXP-011 — DINOv2 image-only five-fold OOF baseline
 
-See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The experiment record reports a fixed EXP-010 fold protocol, and the scaler was fitted inside each training fold. However, DEC-006 says the original fold CSV was lost, a replacement was regenerated, the integrity audit is pending, and no model had been trained on the regenerated folds at the time of that decision. The exact fold assignment used by the recorded EXP-011 run therefore needs reconciliation before independent reproduction. This experiment is image-only. A comparable TF-IDF report-text diagnostic has now also been evaluated on the same folds (pooled OOF macro-AUC 0.555506; mean fold macro-AUC 0.576350, SD 0.024897). It is not usable at inference because test reports are unavailable. See [results/EXP-011/README.md](results/EXP-011/README.md).
+See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The experiment record reports a fixed EXP-010 fold protocol, and the scaler was fitted inside each training fold. The 2026-10-13 audit passed for the saved replacement fold CSV, validating its study IDs, label support, and deterministic reproducibility. It does not independently prove the historical membership used in the first EXP-011 run. Treat the reported scores as recorded results with that historical-provenance caveat. This experiment is image-only. A comparable TF-IDF report-text diagnostic has now also been evaluated on the same folds (pooled OOF macro-AUC 0.555506; mean fold macro-AUC 0.576350, SD 0.024897). It is not usable at inference because test reports are unavailable. See [results/EXP-011/README.md](results/EXP-011/README.md).
 
 
 ### EXP-011 (continued) — TF-IDF report-text diagnostic on fixed folds
 - **Date:** 2026-10-13
 - **Status:** completed; diagnostic only
-- **Protocol:** recorded as using the five-fold EXP-010 protocol (sizes 13, 10, 12, 12, 11); 58 complete-label studies and 12 targets. Fold membership and the relationship to the regenerated file remain unresolved under DEC-006.
+- **Protocol:** recorded as using the five-fold EXP-010 protocol (sizes 13, 10, 12, 12, 11); 58 complete-label studies and 12 targets. The saved fold file passed integrity/reproducibility checks, but its identity with the first run's historical assignment is not independently proven under DEC-006.
 - **Text features:** TF-IDF word unigrams and bigrams; lowercase; Unicode accent stripping; min_df=1; max_features=20,000; sublinear_tf=True. The vocabulary was fitted separately within each training fold.
 - **Classifier:** one balanced LogisticRegression (C=1.0, max_iter=2000, random_state=42) per target per fold.
 - **Pooled OOF macro ROC-AUC:** 0.555506.
