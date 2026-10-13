@@ -94,3 +94,28 @@ Follow docs/COMPETITIVE_RESEARCH_PLAN.md:
 4. Test 2.5D/multi-plane inputs and report-derived soft/state supervision through controlled ablations.
 
 No EXP-009 or later experiment is claimed complete in this entry.
+
+
+## 2026-10-13 — EXP-010 audit and EXP-011 fixed-fold baseline
+
+### EXP-010 fold integrity
+
+- The saved fold assignment was verified: 58 rows, 58 unique StudyInstanceUIDs, and exact coverage of the 58 complete-label studies.
+- Fold sizes were {0: 13, 1: 10, 2: 12, 3: 12, 4: 11}.
+- Independently recomputed per-target positive/negative support matched the saved fold-support artifact.
+
+### EXP-011 measured results
+
+- Reused the saved EXP-010 folds unchanged; no fold regeneration for model evaluation.
+- Used cached frozen DINOv2 Base mean-of-nine-slice features (768 dimensions per study) and a per-target StandardScaler + balanced logistic regression pipeline (C=1.0, max_iter=2000, random_state=42). Scaling was fitted on training studies within each fold.
+- GPU was off for this classifier evaluation.
+- 58 fully labelled studies and 12 targets were evaluated. Missing labels were not converted to negatives.
+- Pooled OOF macro ROC-AUC: 0.589270.
+- Mean per-fold macro ROC-AUC: 0.594066; standard deviation across folds: 0.054762.
+- Per-fold macro AUCs: fold 0 = 0.680060, fold 1 = 0.595198, fold 2 = 0.580911, fold 3 = 0.586152, fold 4 = 0.528009.
+- Per-target AUCs and class support are recorded in [results/EXP-011/README.md](results/EXP-011/README.md).
+- Six raw result files were saved under Kaggle's `/kaggle/working/exp011_cv_results` and a ZIP was verified. This repository record transcribes the exact metrics available in the execution output; raw per-study OOF predictions are not recreated from aggregates.
+
+### Interpretation / next action
+
+The result is preliminary because only 58 fully labelled studies are available and target support is uneven. Do not claim robust generalisation. Preserve the EXP-010 folds and compare any next model on those same folds. Before a text comparison, inspect the existing report source and EXP-005 implementation, and verify that all preprocessing is fitted within training folds. Test-time reports are unavailable and must not be used as inference inputs.
