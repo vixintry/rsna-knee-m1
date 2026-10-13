@@ -7,7 +7,6 @@ This register contains results from actual Kaggle notebook runs reported in the 
 | EXP-001 | 2026-10-10 | Three-slice slice-level CNN baseline | Completed | Validation macro ROC-AUC 0.5018; training macro ROC-AUC 0.6782 |
 | EXP-002 | 2026-10-10 | Study-level CNN with 3 slices as channels | Completed | Validation macro ROC-AUC 0.4628 |
 | EXP-003 | 2026-10-10 | Study-level CNN with 9 slices as channels | Completed | Validation macro ROC-AUC 0.5684 |
-
 | EXP-004 | 2026-10-10/11 | Frozen DINOv2 Base embeddings + logistic regression (fixed 15-study split) | Completed | Validation macro ROC-AUC 0.5717 |
 | EXP-005 | 2026-10-10/11 | TF-IDF report-only logistic regression (diagnostic; no reports at test time) | Completed | Validation macro ROC-AUC 0.5351 |
 | EXP-006 | 2026-10-10/11 | DINOv2 + TF-IDF features (diagnostic; no reports at test time) | Completed | Validation macro ROC-AUC 0.5665 |
@@ -15,6 +14,8 @@ This register contains results from actual Kaggle notebook runs reported in the 
 | EXP-008 | 2026-10-11 | DINOv2 test inference and submission generation | Smoke-tested | Three example test studies only; no leaderboard score |
 | EXP-010 | 2026-10-11 | Deterministic study-level five-fold assignment | Provisional; integrity audit pending | Fold sizes 13/10/12/12/11; original membership equivalence not proven |
 | EXP-011 | 2026-10-13 | DINOv2 image-only and TF-IDF text-only five-fold diagnostics | Results recorded; fold provenance unresolved | Image pooled OOF 0.589270; text pooled OOF 0.555506 |
+
+**Fold-provenance warning:** `DECISIONS.md` says the original EXP-010 fold CSV was lost, a replacement was regenerated, and its integrity audit is pending. The statement that the original assignment was verified conflicts with that record. The exact fold assignment used by the recorded EXP-011 runs has not been reconciled; their metrics are preserved as reported but cannot yet be independently reproduced from a committed fold CSV.
 
 ## Shared data and validation context
 
