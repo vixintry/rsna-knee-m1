@@ -119,3 +119,16 @@ No EXP-009 or later experiment is claimed complete in this entry.
 ### Interpretation / next action
 
 The result is preliminary because only 58 fully labelled studies are available and target support is uneven. Do not claim robust generalisation. Preserve the EXP-010 folds and compare any next model on those same folds. Before a text comparison, inspect the existing report source and EXP-005 implementation, and verify that all preprocessing is fitted within training folds. Test-time reports are unavailable and must not be used as inference inputs.
+
+
+### EXP-011 continued — TF-IDF report-text diagnostic (2026-10-13)
+
+- Reused the existing EXP-010 five-fold study-level assignments unchanged: 58 studies, fold sizes {0: 13, 1: 10, 2: 12, 3: 12, 4: 11}.
+- Used TF-IDF word unigrams and bigrams (lowercase, Unicode accent stripping, min_df=1, max_features=20,000, sublinear TF). Vocabulary fitting occurred independently within each training fold; validation reports were transformed using that fold's training vocabulary.
+- Fit one balanced logistic-regression classifier per target per fold (C=1.0, max_iter=2000, random_state=42).
+- Pooled OOF macro ROC-AUC: 0.555506. Mean fold macro ROC-AUC: 0.576350; population SD across fold scores: 0.024897.
+- Fold macro-AUCs: 0.582970, 0.546806, 0.547492, 0.604384, 0.600099.
+- Per-target pooled OOF AUCs: ACL 0.681373; MCL 0.371882; Medial Meniscus 0.671875; Lateral Meniscus 0.509317; Medial OA 0.719380; Lateral OA 0.599613; PF OA 0.522523; Effusion 0.563975; Synovitis 0.500597; Baker's 0.384058; Contusion 0.530364; Fracture 0.611111.
+- Image-only EXP-011 pooled OOF macro-AUC was 0.589270, so the text-only result was 0.033764 lower. These are exploratory estimates based on only 58 fully labelled studies.
+- Inference restriction confirmed from competition data description: test reports are unavailable at scoring. This baseline is diagnostic only and must not be used as a required test-time input. Report-derived weak supervision remains a separate possible approach, subject to noise audits and gold-fold isolation.
+- The run saved six output files under Kaggle's `/kaggle/working/exp011_text_cv_results`. Raw outputs are not yet committed to Git; do not reconstruct per-study predictions from aggregate metrics.
