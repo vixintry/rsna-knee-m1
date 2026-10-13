@@ -64,7 +64,7 @@ Five raw artifacts have now been committed from the actual uploaded files:
 - [`exp011_per_target_auc.csv`](exp011_per_target_auc.csv)
 - [`exp011_summary.csv`](exp011_summary.csv)
 
-The actual per-study OOF file (`exp011_oof_predictions.csv`, 696 rows) was supplied too, but has not yet been committed. It must be preserved exactly from the uploaded file rather than reconstructed from aggregate metrics. The verified ZIP backup previously created in Kaggle is separate from these repository artifacts.
+The actual per-study image-only OOF file (`exp011_oof_predictions.csv`, 696 rows) is now committed in this directory. It was checked directly: 696 rows, 58 unique studies, 12 targets per study, no duplicate study–target pairs, and all `y_prob` values finite and within [0, 1]. Recomputed pooled OOF macro ROC-AUC matches the recorded 0.589270. Preserve this file as the raw prediction artifact; do not reconstruct it from aggregate metrics.
 
 
 ## EXP-011 (continued) — TF-IDF report-text diagnostic
@@ -123,4 +123,4 @@ The Kaggle run wrote these six files to `/kaggle/working/exp011_text_cv_results`
 - `exp011_text_per_target_auc.csv`
 - `exp011_text_summary.csv`
 
-**Raw artifact status:** not yet committed. The metrics above are transcribed from the actual notebook output; per-study OOF predictions must be added only from the actual saved CSV, not reconstructed from aggregates.
+**Raw artifact status:** the six text-run CSV/JSON artifacts are not yet committed. Add them only from the actual saved Kaggle outputs; do not reconstruct per-study predictions from aggregate metrics.
