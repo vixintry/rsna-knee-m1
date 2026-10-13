@@ -25,7 +25,7 @@ Record approved project decisions and meaningful changes. Do not silently rewrit
 - **Decision:** Keep the historical SPLIT-42-ACL-43-15 results unchanged, but use a deterministic study-level out-of-fold protocol for new model comparisons. Prefer multi-label-aware stratification where feasible and audit per-label positive/negative counts in every fold.
 - **Reason:** The 15-study validation set is too small and stratifies only on ACL, making model ranking highly uncertain.
 - **Constraints:** Never split slices/series from one study across folds. Exclude held-out studies from every supervised training path, including report-derived labels. Explicitly report undefined per-label AUCs rather than inventing values. If the proposed fold count is infeasible for rare labels, document the evidence before changing it.
-- **Status:** Accepted as the next evaluation design; implementation and feasibility checks are still pending.
+- **Status:** Accepted and implemented in EXP-010; the saved assignment passed integrity/support checks on 2026-10-13. Historical identity with the first reported EXP-011 run's fold assignment remains unproven; see DEC-006.
 
 ## DEC-005 — Prioritise geometry-aware, multi-plane MRI and audited report supervision
 - **Date:** 2026-10-11
@@ -46,6 +46,6 @@ Record approved project decisions and meaningful changes. Do not silently rewrit
 - **Status:** fold integrity audit passed; assignment frozen; raw CSV preservation remains outstanding.
 
 ## Open decisions
-- Complete the fold-integrity audit and freeze the validated EXP-010 fold assignment.
+- Preserve the raw audited EXP-010 fold CSV (plus the actual audit JSON/support CSV) in the repository; do not substitute the support-table transcription.
 - Which available medical-image foundation weights are permitted, accessible offline, and computationally viable.
 - Whether LLM-derived soft/state targets improve out-of-fold image performance after manual label-quality audit.
