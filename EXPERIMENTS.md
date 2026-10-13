@@ -195,4 +195,18 @@ None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not as
 
 ## EXP-011 — DINOv2 image-only five-fold OOF baseline
 
-See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The EXP-010 folds were held fixed; the scaler was fitted inside each training fold. This experiment is image-only. A comparable report-text or image-plus-text evaluation on the same folds has **not** yet been completed, so EXP-011 does not complete the originally broader image-and-text comparison.
+See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The EXP-010 folds were held fixed; the scaler was fitted inside each training fold. This experiment is image-only. A comparable TF-IDF report-text diagnostic has now also been evaluated on the same folds (pooled OOF macro-AUC 0.555506; mean fold macro-AUC 0.576350, SD 0.024897). It is not usable at inference because test reports are unavailable. See [results/EXP-011/README.md](results/EXP-011/README.md).
+
+
+### EXP-011 (continued) — TF-IDF report-text diagnostic on fixed folds
+- **Date:** 2026-10-13
+- **Status:** completed; diagnostic only
+- **Protocol:** reused the exact five saved EXP-010 study-level folds (sizes 13, 10, 12, 12, 11); 58 complete-label studies and 12 targets.
+- **Text features:** TF-IDF word unigrams and bigrams; lowercase; Unicode accent stripping; min_df=1; max_features=20,000; sublinear_tf=True. The vocabulary was fitted separately within each training fold.
+- **Classifier:** one balanced LogisticRegression (C=1.0, max_iter=2000, random_state=42) per target per fold.
+- **Pooled OOF macro ROC-AUC:** 0.555506.
+- **Mean per-fold macro ROC-AUC:** 0.576350; standard deviation across folds: 0.024897.
+- **Per-fold macro ROC-AUC:** fold 0 = 0.582970; fold 1 = 0.546806; fold 2 = 0.547492; fold 3 = 0.604384; fold 4 = 0.600099.
+- **Comparison:** image-only EXP-011 pooled OOF macro-AUC = 0.589270; the text-only score was 0.033764 lower. This comparison is diagnostic and should not be interpreted as a definitive modality comparison given the small labelled sample.
+- **Inference constraint:** test reports are unavailable, so report text must not be required by the final prediction pipeline. Report-derived training supervision may be explored separately with strict validation-fold isolation and audited noise.
+- **Artifacts:** six files were saved in Kaggle at `/kaggle/working/exp011_text_cv_results`; raw files have not yet been committed because a backup ZIP has not yet been supplied to the repository workflow.
