@@ -58,3 +58,62 @@ The Kaggle run saved six files under `/kaggle/working/exp011_cv_results`:
 - `exp011_summary.csv`
 
 A verified ZIP backup was created at `/kaggle/working/exp011_cv_results_backup.zip`. The repository record above transcribes the metrics visible in the run output; the complete per-study OOF prediction file should only be committed when its actual contents are available, not reconstructed from summary metrics.
+
+
+## EXP-011 (continued) — TF-IDF report-text diagnostic
+
+This is a separate diagnostic baseline evaluated using the **same fixed EXP-010 folds** as the image-only baseline. It is not a test-time model because reports are unavailable for test studies.
+
+- **Input:** report text from the 58 fully labelled training studies.
+- **Text vectorizer:** TF-IDF, word unigrams and bigrams, lowercase, Unicode accent stripping, min_df=1, max_features=20,000, sublinear TF. A separate vocabulary was fitted on each fold's training reports only.
+- **Classifier:** per-target LogisticRegression(C=1.0, class_weight="balanced", max_iter=2000, random_state=42).
+- **Pooled OOF macro ROC-AUC:** 0.555506.
+- **Mean fold macro ROC-AUC:** 0.576350.
+- **Population SD of fold macro ROC-AUC:** 0.024897.
+
+### Per-target pooled OOF ROC-AUC
+
+| Target | Studies | Positive | Negative | OOF ROC-AUC |
+|---|---:|---:|---:|---:|
+| ACL | 58 | 24 | 34 | 0.681373 |
+| MCL | 58 | 9 | 49 | 0.371882 |
+| Medial Meniscus | 58 | 26 | 32 | 0.671875 |
+| Lateral Meniscus | 58 | 23 | 35 | 0.509317 |
+| Medial OA | 58 | 15 | 43 | 0.719380 |
+| Lateral OA | 58 | 11 | 47 | 0.599613 |
+| PF OA | 58 | 21 | 37 | 0.522523 |
+| Effusion | 58 | 35 | 23 | 0.563975 |
+| Synovitis | 58 | 27 | 31 | 0.500597 |
+| Baker's | 58 | 12 | 46 | 0.384058 |
+| Contusion | 58 | 19 | 39 | 0.530364 |
+| Fracture | 58 | 18 | 40 | 0.611111 |
+
+### Per-fold macro ROC-AUC
+
+| Fold | Validation studies | Macro ROC-AUC |
+|---:|---:|---:|
+| 0 | 13 | 0.582970 |
+| 1 | 10 | 0.546806 |
+| 2 | 12 | 0.547492 |
+| 3 | 12 | 0.604384 |
+| 4 | 11 | 0.600099 |
+
+### Comparison and decision
+
+- Image-only pooled OOF macro-AUC: **0.589270**.
+- Text-only pooled OOF macro-AUC: **0.555506**.
+- Difference (text minus image): **-0.033764**.
+- The text score is lower in this small sample. This does not prove text has no value, and the two scores should be treated as preliminary because only 58 studies have complete official labels.
+- **Decision:** retain as a diagnostic result only. Test reports are unavailable, so the final submission must predict from permitted test-time inputs such as MRI images. Report-derived training supervision can be evaluated separately with strict fold isolation and explicit handling of noisy labels.
+
+### Text-run artifacts
+
+The Kaggle run wrote these six files to `/kaggle/working/exp011_text_cv_results`:
+- `exp011_text_config.json`
+- `exp011_text_fold_metrics.csv`
+- `exp011_text_oof_predictions.csv`
+- `exp011_text_per_fold_macro_auc.csv`
+- `exp011_text_per_target_auc.csv`
+- `exp011_text_summary.csv`
+
+**Raw artifact status:** not yet committed. The metrics above are transcribed from the actual notebook output; per-study OOF predictions must be added only from the actual saved CSV, not reconstructed from aggregates.
