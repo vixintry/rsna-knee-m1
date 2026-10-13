@@ -45,3 +45,9 @@ logs/
 Thumbs.db
 .vscode/
 .idea/
+
+# Kaggle credentials and local generated caches
+kaggle.json
+.kaggle/
+*.npy
+/exp004_dinov2_cache*.zip
