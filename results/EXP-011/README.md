@@ -57,7 +57,14 @@ The Kaggle run saved six files under `/kaggle/working/exp011_cv_results`:
 - `exp011_per_target_auc.csv`
 - `exp011_summary.csv`
 
-A verified ZIP backup was created at `/kaggle/working/exp011_cv_results_backup.zip`. The repository record above transcribes the metrics visible in the run output; the complete per-study OOF prediction file should only be committed when its actual contents are available, not reconstructed from summary metrics.
+Five raw artifacts have now been committed from the actual uploaded files:
+- [`exp011_config.json`](exp011_config.json)
+- [`exp011_fold_metrics.csv`](exp011_fold_metrics.csv)
+- [`exp011_per_fold_macro_auc.csv`](exp011_per_fold_macro_auc.csv)
+- [`exp011_per_target_auc.csv`](exp011_per_target_auc.csv)
+- [`exp011_summary.csv`](exp011_summary.csv)
+
+The actual per-study OOF file (`exp011_oof_predictions.csv`, 696 rows) was supplied too, but has not yet been committed. It must be preserved exactly from the uploaded file rather than reconstructed from aggregate metrics. The verified ZIP backup previously created in Kaggle is separate from these repository artifacts.
 
 
 ## EXP-011 (continued) — TF-IDF report-text diagnostic
