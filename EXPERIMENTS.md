@@ -180,8 +180,8 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | ID | Work | Status |
 |---|---|---|
 | EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
-| EXP-010 | Deterministic study-level multi-label-aware OOF folds and metric tests | Kaggle cell ran on the real CSV (58 complete-label studies); five folds have both classes for all 12 targets. Original fold file was lost and regenerated; reported fold sizes and positive counts match. Provenance recorded in DEC-006 and `configs/folds/exp010_folds_PROVENANCE.json`. Integrity audit still pending; no model trained on these folds. |
-| EXP-011 | Re-evaluate image and text baselines on identical OOF folds | Planned |
+| EXP-010 | Deterministic study-level folds and integrity audit | Completed; original saved assignment verified against all 58 complete-label studies, with fold support independently recomputed and matched. |
+| EXP-011 | DINOv2 image-only baseline on fixed five-fold OOF validation | Completed; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). See [results/EXP-011/README.md](results/EXP-011/README.md). |
 | EXP-012 | 2.5D adjacent-slice windows | Planned |
 | EXP-013 | Multi-plane/sequence ablations | Planned |
 | EXP-014 | LLM-assisted report-label quality audit | Planned |
@@ -191,3 +191,8 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | EXP-018 | Evaluate a complementary ensemble using OOF predictions | Planned |
 
 None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not assign them scores until measured.
+
+
+## EXP-011 — DINOv2 image-only five-fold OOF baseline
+
+See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The EXP-010 folds were held fixed; the scaler was fitted inside each training fold. This experiment is image-only. A comparable report-text or image-plus-text evaluation on the same folds has **not** yet been completed, so EXP-011 does not complete the originally broader image-and-text comparison.
