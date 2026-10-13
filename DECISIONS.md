@@ -42,10 +42,10 @@ Record approved project decisions and meaningful changes. Do not silently rewrit
 - **Audit outcome (2026-10-13):** all printed checks passed against the saved CSV and `train.csv`: 58 complete-label IDs matched exactly; each study appeared once; fold IDs were exactly 0–4 with sizes 13/10/12/12/11; labels were binary; every label had both classes in every fold and at least five positives and negatives overall; saved support matched the previously reported table; and the saved CSV was reproduced exactly by the repository generator under both train-row and StudyInstanceUID-sorted orderings.
 - **Important limitation:** this proves integrity and reproducibility of the saved assignment, not that it is the original historical assignment from the first EXP-010 run. The generator depends on row order. Fold 0 contains only one MCL-positive study (1 positive / 12 negative), so its per-fold MCL AUC is not meaningful; use pooled OOF AUC for primary comparisons.
 - **Data hashes reported by Kaggle:** `train.csv` SHA-256 `8ca2203c0e9d61c080c7a314c7cdb51c1b03a1d9eb4770819f7f34af53ef4e33`.
-- **Artifact status:** audit output and a support-table transcription are recorded under `results/EXP-010/`. The raw canonical `exp010_folds.csv` and original `exp010_fold_support.csv` still need to be copied from Kaggle into the repository; the support transcription is not a substitute for the raw fold file.
-- **Status:** fold integrity audit passed; assignment frozen; raw CSV preservation remains outstanding.
+- **Artifact status:** the canonical `results/EXP-010/exp010_folds.csv`, `results/EXP-010/exp010_fold_support.csv`, `results/EXP-010/exp010_fold_audit.json`, and `results/EXP-010/FOLD_AUDIT.md` are committed. The fold CSV SHA-256 is `5694a719f79a45c343ea6348f369b4e9154b3ff33bcc1f37e1f137fb96c161b6`. The separate `fold_support.csv` is a transcription and must not be treated as the canonical fold assignment.
+- **Status:** fold integrity audit passed; assignment frozen; canonical artifacts preserved; historical-membership caveat remains.
 
 ## Open decisions
-- Preserve the raw audited EXP-010 fold CSV (plus the actual audit JSON/support CSV) in the repository; do not substitute the support-table transcription.
+- EXP-010 artifact preservation is complete: canonical fold CSV, support CSV, and audit JSON/report are committed. Do not regenerate the frozen assignment; the remaining issue is historical identity with the first EXP-011 run, not missing files.
 - Which available medical-image foundation weights are permitted, accessible offline, and computationally viable.
 - Whether LLM-derived soft/state targets improve out-of-fold image performance after manual label-quality audit.
