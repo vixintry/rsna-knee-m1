@@ -163,7 +163,7 @@ Copy for each meaningful experiment:
 - **Regression tests:** 7/7 passed in Kaggle, including indication-versus-findings precedence, “remainder intact” cues, ACL partial-tear context, compartment-specific OA, contradictory synovitis statements and rule-out language.
 - **Audit scope:** 4,349 studies without complete official labels.
 - **Selected audit counts (known positive / known negative):** ACL 370/601; MCL 212/676; Medial Meniscus 677/424; Lateral Meniscus 258/761; Effusion 1,302/646; Synovitis 381/12. The three OA targets had positive candidates but zero known negative candidates in this parser audit (Medial OA 55 positives, Lateral OA 24, PF OA 70), so they are not usable binary training sets without further review.
-- **Caveats:** these are parser outputs, not verified clinical ground truth. Some reports are uncertain or conflicting; manually audit each target before using any weak labels.
+- **Caveats:** these are parser outputs, not verified clinical ground truth. Some reports are uncertain or conflicting; manually audit each target before using any weak labels. The committed script `scripts/derive_report_weak_labels.py` and its regression tests are preserved from the separate EXP-007 branch, but the exact executed notebook source has not yet been matched byte-for-byte to the version that produced these historical counts. Do not attribute the counts to that script until reproduced; see [the provenance reconciliation](reports/2026-10-13-exp007-provenance-reconciliation.md).
 - **Decision:** keep as audit-only for now; do not train indiscriminately on hard weak labels.
 
 ## EXP-008 — DINOv2 test inference and submission generation
