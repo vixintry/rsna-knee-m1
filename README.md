@@ -6,7 +6,46 @@ A reproducible machine-learning research project for the Kaggle RSNA Knee Abnorm
 Maximise legitimate competition performance while preserving evaluation integrity, reproducibility, and clear experiment records.
 
 ## Status
-**Five-fold image-only baseline evaluation completed (EXP-011).** The audited EXP-010 study-level folds were reused unchanged to evaluate frozen DINOv2 features with per-target logistic regression. Pooled OOF macro ROC-AUC was 0.58927; mean fold macro ROC-AUC was 0.594066 (standard deviation 0.054762). These are preliminary results from only 58 fully labelled studies, not a reliable estimate of hidden-test performance. See [EXPERIMENTS.md](EXPERIMENTS.md) and [results/EXP-011/README.md](results/EXP-011/README.md). Full hidden-test inference and a verified competitive leaderboard result are not recorded.
+**EXP-011 exploratory five-fold evaluation recorded.** The image-only run reports pooled OOF macro ROC-AUC 0.589270; the text-only diagnostic reports 0.555506. These are results from only 58 fully labelled studies and are not reliable estimates of hidden-test performance. There is an unresolved provenance discrepancy: [DECISIONS.md](DECISIONS.md) says the original EXP-010 fold file was lost, the replacement was regenerated, and the integrity audit is pending, while the experiment register describes the folds as verified. Exact fold membership and which assignment the EXP-011 runs used have not been reconciled. Treat the scores as recorded exploratory results, not yet independently reproducible from a committed fold artifact. No leaderboard score is recorded.
+
+## Results at a glance
+All scores are macro ROC-AUC over 12 targets. Single-split and five-fold OOF results use different protocols and are not directly comparable.
+
+| Protocol | Experiment | Score |
+|---|---|---:|
+| Single split (43 train / 15 validation) | Small CNNs from scratch (EXP-001, 002, 003) | 0.5018, 0.4628, 0.5684 |
+| Single split | Frozen DINOv2 Base + logistic regression (EXP-004) | 0.5717 |
+| Single split, diagnostic only | TF-IDF report baseline (EXP-005) | 0.5351 |
+| Single split, diagnostic only | DINOv2 + TF-IDF (EXP-006) | 0.5665 |
+| Five-fold OOF, reported | DINOv2 image-only (EXP-011) | 0.589270 pooled; 0.594066 mean fold (SD 0.054762) |
+| Five-fold OOF, reported diagnostic | TF-IDF report text (EXP-011) | 0.555506 pooled; 0.576350 mean fold (SD 0.024897) |
+
+EXP-005/006 and the text-only EXP-011 diagnostic cannot be used as test-time predictors because test reports are unavailable. EXP-007 is an audit only and has not been used for training. See [EXPERIMENTS.md](EXPERIMENTS.md) for methods and limitations.
+
+## Repository layout
+```
+src/                 label definitions and validation/fold utilities
+scripts/              fold creation and report-label prototype
+tests/                pytest suite (python -m pytest tests)
+notebooks/            data audit, MRI baseline, and DINOv2 experiments
+notebooks/archive/    superseded notebook versions kept for reference
+configs/folds/        EXP-010 fold provenance record
+results/              curated experiment outputs
+reports/              dated findings write-ups
+docs/                 research plans and prototype notes
+```
+
+## Branch workflow
+- `main` is the default branch.
+- `notebook-cleanup` contains the current experiment work.
+- Use a separate branch and pull request for cleanup or experiment changes. Review provenance conflicts before merging related experiment-register changes.
+
+## Running on Kaggle
+- Competition data is mounted at `/kaggle/input/competitions/rsna-knee-abnormality-detection`; DINOv2 Base is loaded from the attached Kaggle model `metaresearch/dinov2`.
+- Follow the GPU ON/OFF note above each notebook cell. Do not use Run All blindly.
+- `/kaggle/working` is session-local. Save a notebook version or download outputs before ending a session.
+- The DINOv2 inference cells depend on feature caches under `/kaggle/working`; those caches must exist in the same session or be recreated from the documented extraction step.
+- `requirements.txt` covers the local helper code and tests. Kaggle notebooks additionally use packages such as pydicom, torch, transformers, and scikit-learn; record the actual environment for each run.
 
 ## Research principles
 - Never fabricate results or claim code ran unless it was executed.

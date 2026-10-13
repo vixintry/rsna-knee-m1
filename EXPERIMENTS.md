@@ -7,6 +7,15 @@ This register contains results from actual Kaggle notebook runs reported in the 
 | EXP-001 | 2026-10-10 | Three-slice slice-level CNN baseline | Completed | Validation macro ROC-AUC 0.5018; training macro ROC-AUC 0.6782 |
 | EXP-002 | 2026-10-10 | Study-level CNN with 3 slices as channels | Completed | Validation macro ROC-AUC 0.4628 |
 | EXP-003 | 2026-10-10 | Study-level CNN with 9 slices as channels | Completed | Validation macro ROC-AUC 0.5684 |
+| EXP-004 | 2026-10-10/11 | Frozen DINOv2 Base embeddings + logistic regression (fixed 15-study split) | Completed | Validation macro ROC-AUC 0.5717 |
+| EXP-005 | 2026-10-10/11 | TF-IDF report-only logistic regression (diagnostic; no reports at test time) | Completed | Validation macro ROC-AUC 0.5351 |
+| EXP-006 | 2026-10-10/11 | DINOv2 + TF-IDF features (diagnostic; no reports at test time) | Completed | Validation macro ROC-AUC 0.5665 |
+| EXP-007 | 2026-10-11 | Rule-based report weak-label audit | Completed; audit only | Parser audit on 4,349 studies; not used for training |
+| EXP-008 | 2026-10-11 | DINOv2 test inference and submission generation | Smoke-tested | Three example test studies only; no leaderboard score |
+| EXP-010 | 2026-10-11 | Deterministic study-level five-fold assignment | Provisional; integrity audit pending | Fold sizes 13/10/12/12/11; original membership equivalence not proven |
+| EXP-011 | 2026-10-13 | DINOv2 image-only and TF-IDF text-only five-fold diagnostics | Results recorded; fold provenance unresolved | Image pooled OOF 0.589270; text pooled OOF 0.555506 |
+
+**Fold-provenance warning:** `DECISIONS.md` says the original EXP-010 fold CSV was lost, a replacement was regenerated, and its integrity audit is pending. The statement that the original assignment was verified conflicts with that record. The exact fold assignment used by the recorded EXP-011 runs has not been reconciled; their metrics are preserved as reported but cannot yet be independently reproduced from a committed fold CSV.
 
 ## Shared data and validation context
 
@@ -180,8 +189,8 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | ID | Work | Status |
 |---|---|---|
 | EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
-| EXP-010 | Deterministic study-level folds and integrity audit | Completed; original saved assignment verified against all 58 complete-label studies, with fold support independently recomputed and matched. |
-| EXP-011 | DINOv2 image-only baseline on fixed five-fold OOF validation | Completed; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). See [results/EXP-011/README.md](results/EXP-011/README.md). |
+| EXP-010 | Deterministic study-level folds and integrity audit | Provisional; original fold file lost, replacement regenerated, integrity audit pending; exact original membership not proven. |
+| EXP-011 | DINOv2 image-only baseline on reported five-fold OOF validation | Results recorded; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). Fold provenance is unresolved; see [DECISIONS.md](DECISIONS.md) and [configs/folds/exp010_folds_PROVENANCE.json](configs/folds/exp010_folds_PROVENANCE.json). |
 | EXP-012 | 2.5D adjacent-slice windows | Planned |
 | EXP-013 | Multi-plane/sequence ablations | Planned |
 | EXP-014 | LLM-assisted report-label quality audit | Planned |
@@ -195,18 +204,18 @@ None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not as
 
 ## EXP-011 — DINOv2 image-only five-fold OOF baseline
 
-See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The EXP-010 folds were held fixed; the scaler was fitted inside each training fold. This experiment is image-only. A comparable TF-IDF report-text diagnostic has now also been evaluated on the same folds (pooled OOF macro-AUC 0.555506; mean fold macro-AUC 0.576350, SD 0.024897). It is not usable at inference because test reports are unavailable. See [results/EXP-011/README.md](results/EXP-011/README.md).
+See [results/EXP-011/README.md](results/EXP-011/README.md) for the full recorded per-target and per-fold results. The experiment record reports a fixed EXP-010 fold protocol, and the scaler was fitted inside each training fold. However, DEC-006 says the original fold CSV was lost, a replacement was regenerated, the integrity audit is pending, and no model had been trained on the regenerated folds at the time of that decision. The exact fold assignment used by the recorded EXP-011 run therefore needs reconciliation before independent reproduction. This experiment is image-only. A comparable TF-IDF report-text diagnostic has now also been evaluated on the same folds (pooled OOF macro-AUC 0.555506; mean fold macro-AUC 0.576350, SD 0.024897). It is not usable at inference because test reports are unavailable. See [results/EXP-011/README.md](results/EXP-011/README.md).
 
 
 ### EXP-011 (continued) — TF-IDF report-text diagnostic on fixed folds
 - **Date:** 2026-10-13
 - **Status:** completed; diagnostic only
-- **Protocol:** reused the exact five saved EXP-010 study-level folds (sizes 13, 10, 12, 12, 11); 58 complete-label studies and 12 targets.
+- **Protocol:** recorded as using the five-fold EXP-010 protocol (sizes 13, 10, 12, 12, 11); 58 complete-label studies and 12 targets. Fold membership and the relationship to the regenerated file remain unresolved under DEC-006.
 - **Text features:** TF-IDF word unigrams and bigrams; lowercase; Unicode accent stripping; min_df=1; max_features=20,000; sublinear_tf=True. The vocabulary was fitted separately within each training fold.
 - **Classifier:** one balanced LogisticRegression (C=1.0, max_iter=2000, random_state=42) per target per fold.
 - **Pooled OOF macro ROC-AUC:** 0.555506.
 - **Mean per-fold macro ROC-AUC:** 0.576350; standard deviation across folds: 0.024897.
 - **Per-fold macro ROC-AUC:** fold 0 = 0.582970; fold 1 = 0.546806; fold 2 = 0.547492; fold 3 = 0.604384; fold 4 = 0.600099.
-- **Comparison:** image-only EXP-011 pooled OOF macro-AUC = 0.589270; the text-only score was 0.033764 lower. This comparison is diagnostic and should not be interpreted as a definitive modality comparison given the small labelled sample.
+- **Comparison:** image-only EXP-011 pooled OOF macro-AUC = 0.589270; the text-only score was 0.033764 lower. This comparison is diagnostic and should not be interpreted as a definitive modality comparison given the small labelled sample. The experiment register and DEC-006 disagree about fold-file provenance, so same-fold comparability remains a reported claim pending reconciliation.
 - **Inference constraint:** test reports are unavailable, so report text must not be required by the final prediction pipeline. Report-derived training supervision may be explored separately with strict validation-fold isolation and audited noise.
 - **Artifacts:** six files were saved in Kaggle at `/kaggle/working/exp011_text_cv_results`; raw files have not yet been committed because a backup ZIP has not yet been supplied to the repository workflow.
