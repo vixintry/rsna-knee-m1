@@ -15,4 +15,4 @@
 
 ## Per-fold label support
 
-See [fold_support.csv](fold_support.csv), which records the positive/negative counts printed by the successful audit.
+See [exp010_fold_support.csv](exp010_fold_support.csv) for the committed support artifact. The separate [fold_support.csv](fold_support.csv) is a transcription of the earlier printed table, not the canonical audit artifact.
