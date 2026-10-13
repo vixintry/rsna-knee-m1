@@ -1,0 +1,2 @@
+experiment,method,n_studies,n_folds,n_targets,overall_oof_macro_auc,mean_fold_macro_auc,std_fold_macro_auc
+EXP-011,DINOv2 mean-slice features + logistic regression,58,5,12,0.5892698965977774,0.5940661375661376,0.05476161669979656

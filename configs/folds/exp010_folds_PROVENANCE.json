@@ -1,0 +1,15 @@
+{
+  "status": "REGENERATED (original file was lost), not the original artefact",
+  "generator": "repo src/validation.py (downloaded)",
+  "generator_git_blob_sha": "baff60e34423f7de7f3bb66fcb69488a342bb5de",
+  "ordering": "train.csv row order",
+  "seed": 42,
+  "n_splits": 5,
+  "n_studies": 58,
+  "fold_sizes": [13, 10, 12, 12, 11],
+  "evidence": "Per-fold sizes and per-label positive counts equal the table reported from the original run.",
+  "also_matched": "StudyInstanceUID-sorted ordering also reproduced the reported table; whether the two orderings give identical assignments was not checked.",
+  "limit": "Matching counts is strong evidence but not proof that fold membership equals the original.",
+  "folds_csv_sha256": "5694a719f79a45c343ea6348f369b4e9154b3ff33bcc1f37e1f137fb96c161b6",
+  "integrity_audit": "Not yet run on the regenerated file."
+}

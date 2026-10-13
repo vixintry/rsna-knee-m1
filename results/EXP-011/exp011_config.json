@@ -1,0 +1,29 @@
+{
+  "experiment": "EXP-011",
+  "fold_source": "/kaggle/input/datasets/maratiusupov/exp010-folds/exp010_folds.csv",
+  "fold_assignments_regenerated": false,
+  "feature_source": "/kaggle/working/exp004_dinov2_cache/features.npy",
+  "feature_aggregation": "mean across 9 slice embeddings",
+  "classifier": "StandardScaler + LogisticRegression",
+  "C": 1.0,
+  "class_weight": "balanced",
+  "max_iter": 2000,
+  "random_state": 42,
+  "n_splits": 5,
+  "n_studies": 58,
+  "targets": [
+    "ACL",
+    "MCL",
+    "Medial Meniscus",
+    "Lateral Meniscus",
+    "Medial OA",
+    "Lateral OA",
+    "PF OA",
+    "Effusion",
+    "Synovitis",
+    "Baker's",
+    "Contusion",
+    "Fracture"
+  ],
+  "oof_predictions_per_study_target": true
+}
