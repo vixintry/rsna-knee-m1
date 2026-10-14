@@ -1,0 +1,39 @@
+{
+  "status": "OK",
+  "simulated_run": false,
+  "n_studies": 3,
+  "n_with_model_predictions": 3,
+  "n_filled_with_prior": 0,
+  "seconds_per_study_extraction": 0.712,
+  "total_elapsed_seconds": 88.7,
+  "device": "cuda",
+  "series_rung_used_train": {
+    "sagittal_fluid": 56,
+    "coronal_fluid": 2
+  },
+  "series_rung_used_test": {
+    "coronal_fluid": 1,
+    "sagittal_fluid": 2
+  },
+  "slice_order_modes_test": {
+    "instance_number": 3
+  },
+  "slice_range": [0.0, 1.0],
+  "notes": [],
+  "prediction_summary": {
+    "ACL": {"mean": 0.2771, "std": 0.2764},
+    "MCL": {"mean": 0.6552, "std": 0.4583},
+    "Medial Meniscus": {"mean": 0.5377, "std": 0.3897},
+    "Lateral Meniscus": {"mean": 0.2715, "std": 0.2165},
+    "Medial OA": {"mean": 0.5312, "std": 0.2566},
+    "Lateral OA": {"mean": 0.0008, "std": 0.0004},
+    "PF OA": {"mean": 0.3405, "std": 0.4409},
+    "Effusion": {"mean": 0.0015, "std": 0.0003},
+    "Synovitis": {"mean": 0.073, "std": 0.068},
+    "Baker's": {"mean": 0.0339, "std": 0.0388},
+    "Contusion": {"mean": 0.3171, "std": 0.395},
+    "Fracture": {"mean": 0.0767, "std": 0.0539}
+  },
+  "event_counts": {},
+  "first_events": []
+}
