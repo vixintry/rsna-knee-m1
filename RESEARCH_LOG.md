@@ -132,3 +132,24 @@ The result is preliminary because only 58 fully labelled studies are available a
 - Image-only EXP-011 pooled OOF macro-AUC was 0.589270, so the text-only result was 0.033764 lower. These are exploratory estimates based on only 58 fully labelled studies.
 - Inference restriction confirmed from competition data description: test reports are unavailable at scoring. This baseline is diagnostic only and must not be used as a required test-time input. Report-derived weak supervision remains a separate possible approach, subject to noise audits and gold-fold isolation.
 - The run saved six output files under Kaggle's `/kaggle/working/exp011_text_cv_results`. Raw outputs are not yet committed to Git; do not reconstruct per-study predictions from aggregate metrics.
+
+
+## 2026-10-14 — Kaggle 100-study inference smoke test and artifact provenance
+
+### User-provided run evidence
+- Kaggle notebook output reported `STATUS: OK`, 100 studies, 100 model predictions, 0 prior-filled, 123.5 seconds total, 0.606 seconds per study, CUDA, no events, and `slice_order_modes_test: {instance_number: 100}`.
+- Reported series usage for the 100 test studies: `sagittal_fluid: 97`, `coronal_fluid: 3`. This mixed-series fallback requires review; successful inference alone does not establish equivalent input quality.
+- User provided `run_report.json` with `status=OK`, `simulated_run=true`, `n_studies=100`, `n_with_model_predictions=100`, `n_filled_with_prior=0`, `device=cuda`, empty notes/events, and prediction summaries for all 12 targets.
+- The notebook explicitly printed that this was a simulated run and no real submission was written. The simulation therefore does not validate or replace the earlier real `submission.csv`.
+- The user reports that a real `SIMULATE_N=0` run and submission already exist. Their row count, column order, IDs, probability finiteness/range, checksum, runtime, and original run report have not yet been independently inspected in this session. Do not claim these checks passed until the audit cell has actually run.
+- Because the simulation writes to the shared `run_report.json`, it overwrote the earlier run report; preserve future real-run and simulation reports under distinct filenames.
+
+### Interpretation and limits
+- This is a successful 100-study inference smoke test, not a performance evaluation. Prediction distributions are not accuracy metrics.
+- Zero prior-filled studies and no logged events are encouraging for this sample only; they do not prove the full test run has zero fallbacks.
+- Do not rerun the full GPU inference merely to reconstruct lost provenance if the existing full submission passes structural validation. Record the limitation that the original real-run report may have been overwritten.
+
+### Next action
+- Run a CPU-only audit against `test.csv` and the existing `/kaggle/working/submission.csv`: exact expected columns, full row count, exact StudyInstanceUID order, finite values, values in [0,1], and SHA-256. Save a separate `real_submission_audit.json` in `/kaggle/working`. This is artifact validation, not proof of predictive accuracy or recovery of the original runtime.
+- Then audit the committed EXP-007 report weak-label parser on the 58 officially labelled studies, measuring per-target precision/recall/coverage on explicitly classified cases and whether unknown/report-silent cases differ in gold-positive rate. Keep this audit separate from hidden-test evaluation.
+- Only after the weak-label audit is measured, test weak supervision against the frozen study-level folds, excluding each held-out gold fold from every training path, and compare pooled OOF macro-AUC with uncertainty against the EXP-011 image-only reference (0.589270). Do not accept the change without comparable evidence.
