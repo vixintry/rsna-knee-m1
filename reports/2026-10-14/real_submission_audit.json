@@ -1,0 +1,27 @@
+{
+  "validated_at_utc": "2026-10-14T20:27:10.874925+00:00",
+  "file": "/kaggle/working/submission.csv",
+  "sha256": "0897242c9f931a1f12f7f597288b6243ebe4cf3ede9d8430145f3ccba66c5ab7",
+  "n_rows": 3,
+  "n_expected_test_rows": 3,
+  "columns": [
+    "StudyInstanceUID",
+    "ACL",
+    "MCL",
+    "Medial Meniscus",
+    "Lateral Meniscus",
+    "Medial OA",
+    "Lateral OA",
+    "PF OA",
+    "Effusion",
+    "Synovitis",
+    "Baker's",
+    "Contusion",
+    "Fracture"
+  ],
+  "ids_and_order_match_test_csv": true,
+  "predictions_finite": true,
+  "predictions_within_0_1": true,
+  "status": "PASS",
+  "provenance_note": "Artifact validation only. The earlier real-run report was overwritten by the later simulation; this does not reconstruct the earlier run's runtime or event log."
+}
