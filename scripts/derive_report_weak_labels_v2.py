@@ -32,9 +32,12 @@ def classify_report_v2(report, target):
             # a tear for the same meniscus.
             clauses = re.split(r"(?<=[.;!?])\s+|\n+", text)
             other_positive = any(
-                _has(rf"\b{side}\s+menisc\w*\b[^.;!?]{{0,50}}\b(?:tear|torn|rupture|flap)\b", c)
-                and not _has(r"\bwithout\s+(?:a\s+)?surfacing\s+tear\b", c)
-                for c in clauses
+                (
+                    _has(rf"\b{side}\s+menisc\w*\b[^.;!?]{{0,50}}\b(?:tear|torn|rupture|flap)\b", clause)
+                    or _has(rf"\b(?:tear|torn|rupture|flap)\b[^.;!?]{{0,50}}\b{side}\s+menisc\w*\b", clause)
+                )
+                and not _has(r"\bwithout\s+(?:a\s+)?surfacing\s+tear\b", clause)
+                for clause in clauses
             )
             if not other_positive:
                 return 0.0, "negative", "", "without surfacing tear"
@@ -47,12 +50,18 @@ def classify_report_v2(report, target):
             _has(r"\b(?:low[- ]grade|grade\s*[12]|grade\s+[iI]{1,2}|mild)\b[^.;!?]{0,50}\b(?:tear|sprain|injury|signal|acl|anterior cruciate ligament)\b", text)
             or _has(r"\b(?:acl|anterior cruciate ligament)\b[^.;!?]{0,50}\b(?:low[- ]grade|grade\s*[12]|grade\s+[iI]{1,2}|mild)\b", text)
         )
+        explicit_no_discontinuity = _has(
+            r"\bwithout\s+(?:evidence\s+of\s+)?(?:fiber\s+)?discontinuity\b|"
+            r"\bno\s+(?:fiber\s+)?discontinuity\b|"
+            r"\bintact\b[^.;!?]{0,40}\b(?:acl|anterior cruciate ligament)\b",
+            text,
+        )
         qualifying = _has(
             r"\b(?:high[- ]grade|complete|full[- ]thickness|full thickness|"
             r"discontinuity|disrupted fibers|rupture|ruptured)\b",
             text,
-        )
-        if low_grade and not qualifying and _has(acl_mention, text):
+        ) and not explicit_no_discontinuity
+        if low_grade and (not qualifying or explicit_no_discontinuity) and _has(acl_mention, text):
             return 0.0, "negative", "", "low-grade ACL finding below target threshold"
 
     # MCL label threshold is high-grade partial or complete acute tear. Explicit
