@@ -108,5 +108,5 @@ def main():
     print("No model training performed; do not use these gold studies as weak-label training data.")
 
 
-if __content__ := __name__ == "__main__":
+if __name__ == "__main__":
     main()
