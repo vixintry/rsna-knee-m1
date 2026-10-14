@@ -12,10 +12,10 @@ This register contains results from actual Kaggle notebook runs reported in the 
 | EXP-006 | 2026-10-10/11 | DINOv2 + TF-IDF features (diagnostic; no reports at test time) | Completed | Validation macro ROC-AUC 0.5665 |
 | EXP-007 | 2026-10-11 | Rule-based report weak-label audit | Completed; audit only | Parser audit on 4,349 studies; not used for training |
 | EXP-008 | 2026-10-11 | DINOv2 test inference and submission generation | Smoke-tested | Three example test studies only; no leaderboard score |
-| EXP-010 | 2026-10-11 | Deterministic study-level five-fold assignment | Provisional; integrity audit pending | Fold sizes 13/10/12/12/11; original membership equivalence not proven |
+| EXP-010 | 2026-10-11 | Deterministic study-level five-fold assignment | Integrity audit passed; historical membership unresolved | Fold sizes 13/10/12/12/11; saved CSV and audit artifacts are committed; identity with the first run's historical assignment is not proven |
 | EXP-011 | 2026-10-13 | DINOv2 image-only and TF-IDF text-only five-fold diagnostics | Results recorded; fold provenance unresolved | Image pooled OOF 0.589270; text pooled OOF 0.555506 |
 
-**Fold-provenance warning:** `DECISIONS.md` says the original EXP-010 fold CSV was lost, a replacement was regenerated, and its integrity audit is pending. The statement that the original assignment was verified conflicts with that record. The exact fold assignment used by the recorded EXP-011 runs has not been reconciled; their metrics are preserved as reported but cannot yet be independently reproduced from a committed fold CSV.
+**Fold-provenance warning:** The saved replacement fold CSV and audit artifacts are now committed under `results/EXP-010/`. The 2026-10-13 audit passed checks for IDs, label support, and deterministic reproduction. This verifies the saved assignment's integrity, not that it was the exact historical assignment used in the first EXP-011 run. Preserve that caveat when interpreting the recorded EXP-011 metrics.
 
 ## Shared data and validation context
 
@@ -189,7 +189,7 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | ID | Work | Status |
 |---|---|---|
 | EXP-009 | DICOM geometry, slice order, series/sequence coverage audit | Planned |
-| EXP-010 | Deterministic study-level folds and integrity audit | Saved fold file passed the 2026-10-13 integrity audit; 58 study IDs matched exactly, fold support reproduced, and saved assignment reproduced by the repository generator. Historical identity with the first run's original assignment is still unproven; raw fold CSV still needs committing. |
+| EXP-010 | Deterministic study-level folds and integrity audit | Saved fold file passed the 2026-10-13 integrity audit; 58 study IDs matched exactly, fold support reproduced, and saved assignment reproduced by the repository generator. Canonical fold CSV and audit artifacts are committed. Historical identity with the first run's original assignment remains unproven. |
 | EXP-011 | DINOv2 image-only baseline on reported five-fold OOF validation | Results recorded; pooled OOF macro-AUC 0.589270; mean fold macro-AUC 0.594066 (SD 0.054762). The saved EXP-010 fold file passed integrity/reproducibility checks on 2026-10-13, but its identity with the first run's historical assignment is not proven. See [DECISIONS.md](DECISIONS.md), [results/EXP-010/FOLD_AUDIT.md](results/EXP-010/FOLD_AUDIT.md), and [configs/folds/exp010_folds_PROVENANCE.json](configs/folds/exp010_folds_PROVENANCE.json). |
 | EXP-012 | 2.5D adjacent-slice windows | Planned |
 | EXP-013 | Multi-plane/sequence ablations | Planned |
