@@ -49,3 +49,12 @@ Record approved project decisions and meaningful changes. Do not silently rewrit
 - EXP-010 artifact preservation is complete: canonical fold CSV, support CSV, and audit JSON/report are committed. Do not regenerate the frozen assignment; the remaining issue is historical identity with the first EXP-011 run, not missing files.
 - Which available medical-image foundation weights are permitted, accessible offline, and computationally viable.
 - Whether LLM-derived soft/state targets improve out-of-fold image performance after manual label-quality audit.
+
+
+## 2026-10-14 — Submission provenance and weak-label experiment gate
+- **Decision:** Do not rerun the full GPU inference simply because the 100-study simulation ran. Simulation mode explicitly does not write the real submission; the existing full submission should first be checked in place.
+- **Observed evidence:** user-provided Kaggle log/report for `SIMULATE_N=100`: status OK, 100/100 model predictions, 0 prior-filled, 123.5 seconds, CUDA, no logged events; 97 studies used `sagittal_fluid`, 3 used `coronal_fluid`. This is a smoke test only.
+- **Unverified:** the existing real `submission.csv` has not yet been structurally validated in this session. No claims about its row count, exact ID order, finite/ranged probabilities, or checksum until the CPU audit passes.
+- **Artifact provenance:** simulation and real mode share `run_report.json`; the simulation may have overwritten the earlier real-run report. Future runs must save distinct immutable reports for real and simulated modes.
+- **Next gate:** validate the existing full submission (CPU, no GPU required); then measure EXP-007 weak-label precision, recall, and coverage per target on the 58 gold-labelled studies, with unknown/uncertain/conflict states kept separate. Do not treat report silence as a negative label.
+- **Modeling gate:** only run weak-supervision OOF experiments after the audit, using the frozen canonical fold CSV and preventing held-out gold-fold leakage. Compare against EXP-011 image-only pooled OOF macro-AUC 0.589270, report uncertainty and per-target support, and reject unsupported gains.
