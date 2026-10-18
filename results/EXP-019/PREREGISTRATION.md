@@ -13,7 +13,7 @@ Results go in `results/EXP-019/README.md` after the run, never here (Rule 1).
 | Weak-label parser | `scripts/derive_report_weak_labels.py`, blob `841d47fc3f932d3626595ed79a782b640318c0d4`, commit `56fdf6c` | GitHub API |
 | Frozen gold folds (descriptive baseline only) | `results/EXP-010/exp010_folds.csv`, SHA-256 `5694a719f79a45c343ea6348f369b4e9154b3ff33bcc1f37e1f137fb96c161b6` | DEC-006 |
 | Code commit of the EXP-019 scripts | recorded by the extractor at run time (`git_head_at_start` in `manifest.json`) | cannot be written here without a circular commit |
-| Competition rules / metric | **NOT VERIFIED** (see Gates) | Official pages were not readable by the assistant |
+| Competition rules / metric | **PARTIALLY VERIFIED; G1 remains open** | Official Overview confirms macro-averaged ROC-AUC over 12 targets; official Data page says reports are provided as a potential source for deriving labels. The Rules page's full text was not readable in this audit, so a human must still check the competition-specific terms and data-security section before marking G1 VERIFIED. Use the committed local regex parser only; do not transmit report text to a hosted third-party API. |
 
 Related register entries: EXP-007 (parser audit; its counts are not reproduced from the committed script), EXP-013 (multi-plane ablations; the extractor already stores plane slots for it), EXP-014 (report-label audit; may satisfy the quality gate), EXP-015 (full weak-supervised training; this experiment is a cheap frozen-feature pilot of the same question).
 
@@ -43,7 +43,7 @@ Environment:              Kaggle, GPU for extraction. Library versions are not p
                           environment of the recorded 0.615784; the reproduction gate checks this.
 Runtime / peak memory:    NOT MEASURED. The smoke test prints an extrapolated ESTIMATE; replace it with the
                           measured full-run time afterwards.
-Primary metric:           macro ROC AUC over ALL 12 targets on the 58 gold studies (official metric NOT yet verified).
+Primary metric:           macro ROC AUC over ALL 12 targets on the 58 gold studies (confirmed on the official Overview/Evaluation page; G1 still requires the human gate file).
 Per-target metrics:       [blank until run]
 Failure modes / caveats:  [blank until run]
 Conclusion:               [blank until run]
@@ -89,7 +89,7 @@ Code commit:              see manifest.json
 **G5. Reproduction gate** (analysis): gold-only CV from the stored features must give 0.615784 within 0.005.
 **G6. Analysis**, run once. Record the output verbatim in `results/EXP-019/README.md`. Any change is a new experiment ID.
 
-Evidence gathered so far for G1 (secondary sources only, NOT official, so the gates file stays NOT_VERIFIED): press coverage and one third-party repository README state the metric is macro ROC AUC, that it is a code competition (<= 9 h, internet off), that the final submission date is 2026-10-22, and that the dataset pairs every study with its original radiology report (reports in 12 languages). Confirm every point on the competition pages.
+Evidence gathered for G1 (official pages checked 2026-10-18): the [Overview/Evaluation page](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/overview/efficiency-prize-evaluation) defines the score as the average ROC-AUC over the 12 targets; the [Data page](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/data) describes the Report column and says reports may be used to derive labels for remaining studies. The full text of the [Rules page](https://www.kaggle.com/competitions/rsna-knee-abnormality-detection/rules) was not readable in this audit. Therefore do not mark the gate VERIFIED until a human checks the full competition-specific terms and data-security clause. EXP-019 uses a local deterministic parser; no report text should be sent to a hosted API.
 
 ## Blockers (open)
 
