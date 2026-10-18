@@ -16,5 +16,6 @@
     "audit_reference": "",
     "waived": false,
     "waiver_decision_id": ""
-  }
+  },
+  "_data_security_note": "EXP-019 uses the local deterministic parser only. Do not send Competition Data report text to hosted third-party APIs. A human must read the full official competition rules, including data-security terms, before setting status to VERIFIED."
 }
