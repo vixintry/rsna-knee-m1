@@ -198,8 +198,9 @@ The detailed rationale and acceptance criteria are in [docs/COMPETITIVE_RESEARCH
 | EXP-016 | Clinical-state auxiliary targets | Planned |
 | EXP-017 | Verify and evaluate a medical-image foundation encoder | Planned |
 | EXP-018 | Evaluate a complementary ensemble using OOF predictions | Planned |
+| EXP-019 | Frozen-DINOv2 probe trained on locally derived report weak labels; gold-study evaluation | Pre-registered; NOT RUN. G0 class-count pre-flight and G1 human rules/quality gate must pass before full extraction. See [results/EXP-019/PREREGISTRATION.md](results/EXP-019/PREREGISTRATION.md). |
 
-None of EXP-009–EXP-018 has been run by virtue of being listed here. Do not assign them scores until measured.
+None of EXP-009–EXP-019 has been run by virtue of being listed here. Do not assign them scores until measured.
 
 
 ## EXP-011 — DINOv2 image-only five-fold OOF baseline
